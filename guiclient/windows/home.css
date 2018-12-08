@@ -1,3 +1,11 @@
+* {
+	-webkit-transition: all .2s;
+	-moz-transition: all .2s;
+	-ms-transition: all .2s;
+	-o-transition: all .2s;
+	transition: all .2s;
+}
+
 h1 {
 	font-family: 'Fredoka One', cursive;
 	/*font-size: 40px;*/
@@ -14,15 +22,16 @@ iframe {
 
 body {
 	/*background-color: #4f4f4f;*/
+	background-color: white;
 	height: 100vh;
 	width: 100%;
 }
 
 #header {
 	width: 100%;
-	background-color: red;
+	background-color: #F1F3F4;
 	text-align: center;
-	border: 1px solid black/*#636363*/;
+	padding: 3px;
 	margin-bottom: 10px;
 	border-radius: 10px;
 }
@@ -31,11 +40,10 @@ body {
 	float: left;
 	width: 20%;
 	height: 99vh;
-	background-color: green;
+	background-color: #F1F3F4;
 	text-align: center;
 	min-height: 200px;
 	padding: 20px;
-	border: 1px solid black/*#636363*/;
 	border-radius: 10px;
 }
 
@@ -43,9 +51,38 @@ body {
 	float: right;
 	width: 72vw;
 	height: 99vh;
-	background-color: yellow;
+	background-color: #F1F3F4;
 	min-height: 200px;
 	padding: 20px;
-	border: 1px solid black/*#636363*/;
 	border-radius: 10px;
+}
+
+#selectpanel {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 5px;
+	outline: none;
+	/*background-color: #F1F3F4;
+	border-style: none;
+	border-radius: 5px;*/
+	border-style: none;
+	background-color: transparent;
+	overflow: hidden;
+	width: 100%;
+}
+
+#selectpanel option {
+	/*background-color: #ffa01c;*/
+	background-color: white;
+	border-style: none;
+	border-radius: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	text-align: center;
+}
+
+#selectpanel option:hover {
+	background-color: #e2e2e2;
 }
