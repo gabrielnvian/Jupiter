@@ -1,0 +1,39 @@
+module AP
+	def AP::log(text, id, prefix = "log")
+		Dir.mkdir("logs") if !File.exists?("logs")
+		if id == nil
+			id = " - ####"
+		else
+			id = " - #{id}"
+		end
+
+		case prefix
+		when "log"
+			prefix = "[92m[  LOG  ][0m"
+		when "error"
+			prefix = "[91m[ ERROR ][0m"
+		when "socket"
+			prefix = "[92m[ SOCKT ][0m"
+		when "server"
+			prefix = "[92m[ SERVR ][0m"
+		when "backtrace"
+			prefix = "[93m[ TRACE ][0m"
+		when "rawin"
+			prefix = "[96m[ RAWIN ][0m"
+		when "rawout"
+			prefix = "[96m[ RAWOT ][0m"
+		when "warning"
+			prefix = "[93m[ WARNG ][0m"
+		else
+			prefix = "[91m[ NTDEF ][0m"
+		end
+
+		logfull = "[7m#{Time.new.strftime('%d/%m/%Y %H:%M:%S')}[0m #{prefix}#{id}  #{text}"
+
+		puts logfull
+		
+		File.open("logs/#{$launchdate}.log", "a") do |f1|
+			f1.puts logfull
+		end
+	end
+end
