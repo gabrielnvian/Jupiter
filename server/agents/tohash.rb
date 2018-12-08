@@ -2,8 +2,8 @@ require "digest"
 
 class Fulfillment
 	def tohash(request)
-	  	hashtype = request["Content"]["Hashtype"].downcase
-	  	string = request["Content"]["String"]
+		hashtype = request["Content"]["Hashtype"].downcase
+		string = request["Content"]["String"]
 		case hashtype
 		when "md5"
 			newhash = Digest::MD5.hexdigest(string).downcase

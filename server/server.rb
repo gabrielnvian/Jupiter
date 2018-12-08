@@ -26,33 +26,35 @@ agents = AP::getagents(nil, true)
 AP::log("Running startup tasks...", nil, "server")
 ranTasks = 0
 agents.each do |agent|
-  agent[:startupTasks].each do |task|
-    ranTasks += 1
-    OnServerStartup.public_send(task)
-  end
+	if agent[:active]
+		agent[:startupTasks].each do |task|
+			ranTasks += 1
+			OnServerStartup.public_send(task)
+		end
+	end
 end
 AP::log("Ran #{ranTasks} startup tasks", nil, "server")
 
 
 AP::log("Listening for connections...", nil, "server")
 while true
-  begin
-    Thread.fork(server.accept) do |socket|
-      begin
-        id = SecureRandom.hex(2)
-        AP::log("Socket opened", id, "socket")
-        handler = AP::Handler.new(socket, id)
-        handler.run()
-      rescue
-        AP::log("Error while creating socket", id, "error")
-        AP::log($!, id, "backtrace")
-        AP::log($!.backtrace, id, "backtrace")
-        @socket.puts(@headers.merge({"Code"=>"500 Internal Server Error"}).to_json)
-      end
-      AP::log("Socket closed", id, "socket")
-    end
-  rescue Interrupt
-    AP::log("Server stopped", nil, "server")
-    exit!
-  end
+	begin
+		Thread.fork(server.accept) do |socket|
+			begin
+				id = SecureRandom.hex(2)
+				AP::log("Socket opened", id, "socket")
+				handler = AP::Handler.new(socket, id)
+				handler.run()
+			rescue
+				AP::log("Error while creating socket", id, "error")
+				AP::log($!, id, "backtrace")
+				AP::log($!.backtrace, id, "backtrace")
+				@socket.puts(@headers.merge({"Code"=>"500 Internal Server Error"}).to_json)
+			end
+			AP::log("Socket closed", id, "socket")
+		end
+	rescue Interrupt
+		AP::log("Server stopped", nil, "server")
+		exit!
+	end
 end

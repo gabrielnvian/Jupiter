@@ -1,0 +1,51 @@
+h1 {
+	font-family: 'Fredoka One', cursive;
+	/*font-size: 40px;*/
+}
+
+p {
+	font-family: 'Roboto', sans-serif;
+}
+
+iframe {
+	border: 1px solid black/*#636363*/;
+	border-radius: 5px;
+}
+
+body {
+	/*background-color: #4f4f4f;*/
+	height: 100vh;
+	width: 100%;
+}
+
+#header {
+	width: 100%;
+	background-color: red;
+	text-align: center;
+	border: 1px solid black/*#636363*/;
+	margin-bottom: 10px;
+	border-radius: 10px;
+}
+
+#panellist {
+	float: left;
+	width: 20%;
+	height: 99vh;
+	background-color: green;
+	text-align: center;
+	min-height: 200px;
+	padding: 20px;
+	border: 1px solid black/*#636363*/;
+	border-radius: 10px;
+}
+
+#varpanel {
+	float: right;
+	width: 72vw;
+	height: 99vh;
+	background-color: yellow;
+	min-height: 200px;
+	padding: 20px;
+	border: 1px solid black/*#636363*/;
+	border-radius: 10px;
+}

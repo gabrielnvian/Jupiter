@@ -1,2 +1,4 @@
 server/logs
 server/agents/files/*
+guiclient/node_modules
+guiclient/package-lock.json
