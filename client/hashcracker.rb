@@ -14,7 +14,7 @@ headers = {
 
 s = TCPSocket.new "localhost", 2556
 
-hashin = "53531f81f28211786bad113dd41a9a96"
+hashin = "1f6fda80636fb763bef93193444b3f36"
 req = headers.merge({"Connection"=>"close", "Content"=>{"Request"=>"CRACK", "Hash"=>hashin, "Hashtype"=>"md5"}}).to_json
 puts ">>> " + req
 s.puts req
