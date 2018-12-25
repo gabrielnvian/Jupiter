@@ -38,16 +38,9 @@ module AP
 		end
 	end
 
-	def self.agentexists?(agents, agentname)
-		for i in 0...agents.length
-			return true if agents[i][:name] == agentname
-		end
-		return false
-	end
-
-  def self.commandexists?(agents, agent, command)
-    for i in 0...agents.length
-      return true if agents[i][:name] == agent && agents[i][:commands].include?(command)
+  def self.agentcommand?(agents, agentname, command)
+    for agent in agents
+      return true if agent[:name] == agentname && agent[:commands].include?(command)
     end
     return false
   end

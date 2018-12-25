@@ -39,27 +39,18 @@ module AP
 
           agent.history.push([request]) # Save in history the request
 
-					if AP::agentexists?(@agents, request["User-Agent"].downcase)
-            if AP::commandexists?(@agents, request["User-Agent"].downcase, request["Content"]["Request"])
-              AP::log("Running agent \"#{request["User-Agent"]}\"", @id)
-              output = agent.public_send(request["User-Agent"].downcase, request)
-              AP::log("Responding to request", @id)
-              response = nil
-              if output[1]
-                response = @headers.merge(output[0]).to_json
-              else
-                response = output[0].to_json
-              end
-              @socket.puts(response)
-              AP::log(response, @id, "rawout")
-              agent.history[-1].push(response) # Save in history the response
-            else
-              AP::log("Bad request: Command not exists", @id, "warning")
-              @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Command does not exists"}}).to_json)
-            end
+          if AP::agentcommand?(@agents, request["User-Agent"].downcase, request["Content"]["Request"])
+            AP::log("Running agent \"#{request["User-Agent"]}\"", @id)
+            out = agent.public_send(request["User-Agent"].downcase, request)
+
+            AP::log("Responding to request...", @id)
+            out[1] ? response = @headers.merge(out[0]).to_json : response = out[0].to_json # If required merge request with headers
+            @socket.puts(response)
+            AP::log(response, @id, "rawout")
+            agent.history[-1].push(response) # Save in history the response
           else
-            AP::log("Bad request: Agent not exists", @id, "warning")
-            @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent does not exists"}}).to_json)
+            AP::log("Bad request: Agent or command not exists", @id, "warning")
+            @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent or command does not exists"}}).to_json)
           end
         end
       rescue
