@@ -4,8 +4,8 @@ class Fulfillment
 	def hashcracker(request)
 		def buildString(indexes, chars)
 			str = ""
-			for i in 0...indexes.length
-				str += chars[indexes[i]]
+			for i in indexes
+				str += chars[i]
 			end
 			return str
 		end
@@ -36,14 +36,14 @@ class Fulfillment
 			return indexes
 		end
 
-		hashtoc = request["Content"]["Hash"].to_s.downcase()
-		hashtype = request["Content"]["Hashtype"] ? request["Content"]["Hashtype"].downcase() : "md5"
+		hashtoc = request[:Content][:Hash].to_s.downcase()
+		hashtype = request[:Content][:Hashtype] ? request[:Content][:Hashtype].downcase() : "md5"
 		chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 		indexes = [0]
 
 		if File.exists?("agents/files/hashcracker/#{hashtype}/#{hashtoc}.txt")
 			File.open("agents/files/hashcracker/#{hashtype}/#{hashtoc}.txt", "r") do |f1|
-				return {"Content"=>{"Response"=>f1.gets.chomp, "Cached"=>true, "Time"=>0}}, true
+				return {:Content=>{:Response=>f1.gets.chomp, :Cached=>true, Time=>0}}, true
 			end
 		else
 			time1 = Time.new.to_i
@@ -59,10 +59,10 @@ class Fulfillment
 				end
 			end
 			time2 = Time.new.to_i
-			return {"Content"=>{"Response"=>text, "Cached"=>false, "Time"=>time2-time1}}, true
+			return {:Content=>{:Response=>text, :Cached=>false, :Time=>time2-time1}}, true
 		end
 
-		return {"Content"=>{"Response"=>"Hello World! :D"}}, true
+		return {:Content=>{:Response=>"Hello World! :D"}}, true
 	end
 end
 
