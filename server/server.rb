@@ -13,10 +13,10 @@ FileUtils.mkdir_p("agents") if !File.exists?("agents")
 
 $config = eval(File.open("config.ini").readlines.join(""))
 
-server = TCPServer.new $config["address"], $config["port"]
+server = TCPServer.new $config[:address], $config[:port]
 
 system("cls")
-AP::log("Server bound to #{$config["address"]}:#{$config["port"]}", nil, "server")
+AP::log("Server bound to #{$config[:address]}:#{$config[:port]}", nil, "server")
 $launchdate = Time.new.strftime("%d.%m.%Y-%H.%M.%S")
 
 

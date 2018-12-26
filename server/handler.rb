@@ -17,49 +17,44 @@ module AP
       begin
         agent = Fulfillment.new
         request = Hash.new
-        request["Connection"] = "keep-alive"
+        request[:Connection] = "keep-alive"
 
-        while request["Connection"] == "keep-alive"
+        while request[:Connection] == "keep-alive"
           input = @socket.gets
           AP::log(input, @id, "rawin")
 
           if input.nil? # Send flow to log:"socket closed" if buffer is nil
             AP::log("Bad request: request is empty", @id, "warning")
-            @socket.puts(@headers.merge({"Code"=>"400 Bad Request", "Content"=>{"Response"=>"Request is empty"}}).to_json)
+            @socket.puts(@headers.merge({:Code=>"400 Bad Request", :Content=>{:Response=>"Request is empty"}}).to_json)
             return true
           end
 
           if input.split(" ")[0] == "GET" || input.split(" ")[0] == "POST" || input.split(" ")[0] == "HEAD"
             AP::log("Bad request: cannot handle HTTP requests", @id, "warning")
-            @socket.puts(@headers.merge({"Code"=>"400 Bad Request", "Content"=>{"Response"=>"Cannot handle HTTP requests"}}).to_json)
+            @socket.puts(@headers.merge({:Code=>"400 Bad Request", :Content=>{:Response=>"Cannot handle HTTP requests"}}).to_json)
             return true
           end
           
-          request = JSON.parse(input)
+          input = JSON.parse(input)
+          request = Hash.new
+          for key in input.keys
+            request[key.to_sym] = input[key]
+          end
 
           agent.history.push([request]) # Save in history the request
 
-					if AP::agentexists?(@agents, request["User-Agent"].downcase)
-            if AP::commandexists?(@agents, request["User-Agent"].downcase, request["Content"]["Request"])
-              AP::log("Running agent \"#{request["User-Agent"]}\"", @id)
-              output = agent.public_send(request["User-Agent"].downcase, request)
-              AP::log("Responding to request", @id)
-              response = nil
-              if output[1]
-                response = @headers.merge(output[0]).to_json
-              else
-                response = output[0].to_json
-              end
-              @socket.puts(response)
-              AP::log(response, @id, "rawout")
-              agent.history[-1].push(response) # Save in history the response
-            else
-              AP::log("Bad request: Command not exists", @id, "warning")
-              @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Command does not exists"}}).to_json)
-            end
+          if AP::agentcommand?(@agents, request[:User_Agent].downcase, request[:Content][:Request])
+            AP::log("Running agent \"#{request[:User_Agent]}\"", @id)
+            out = agent.public_send(request[:User_Agent].downcase, request)
+
+            AP::log("Responding to request...", @id)
+            out[1] ? response = @headers.merge(out[0]).to_json : response = out[0].to_json # If required merge request with headers
+            @socket.puts(response)
+            AP::log(response, @id, "rawout")
+            agent.history[-1].push(response) # Save in history the response
           else
-            AP::log("Bad request: Agent not exists", @id, "warning")
-            @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent does not exists"}}).to_json)
+            AP::log("Bad request: Agent or command not exists", @id, "warning")
+            @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent or command does not exists"}}).to_json)
           end
         end
       rescue
