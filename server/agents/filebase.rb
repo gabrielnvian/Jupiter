@@ -43,10 +43,10 @@ end
 
 
 module FileBase
-  def FileBase::add(path, item)
+  def FileBase::add(path, item, db = FileBase.load(path)) # Adds a single item in the registry
     if item[:id].kind_of?(String) && item[:name].kind_of?(String) && item[:date].kind_of?(Integer) && item[:keywords].kind_of?(Array)
       File.open("#{path}/.db/registry", "w") do |f1|
-        f1.puts FileBase.load(path).merge(item)
+        f1.puts db.merge(item)
       end
       return true
     else
@@ -55,19 +55,28 @@ module FileBase
     end
   end
 
-  def FileBase::clear(path)
-    db = FileBase.load(path)
-    for key in db.keys
-      db[key] = nil if !File.exists?("#{path}/#{db[key][:name]}.#{db[key][:ext]}")
+  def FileBase::commit(path, db) # Rewrites the entire registry with the new provided
+    if db.kind_of?(Hash)
+      File.open("#{path}/.db/registry", "w") do |f1|
+        f1.puts db
+      end
     end
   end
 
-  def FileBase::load(path)
+  def FileBase::defrag(path, db = FileBase.load(path))
+    db1 = Hash.new
+    for key in db.keys
+      db1[key] = db[key] if File.exists?("#{path}/#{db[key][:name]}.#{db[key][:ext]}")
+    end
+    FileBase.commit(path, db1)
+  end
+
+  def FileBase::load(path) # Loads and returns the registry
     return eval(File.open("#{path}/.db/registry").readlines.join(""))
   end
 
   def FileBase::getid(path)
-    FileBase.clear(path)
+    FileBase.defrag(path)
     db = FileBase.load(path)
     for key in db.keys
       return key if db[key] == nil
