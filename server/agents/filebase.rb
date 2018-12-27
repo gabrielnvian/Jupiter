@@ -2,23 +2,20 @@ class Fulfillment
   def filebase(request)
     case request[:Content][:Request]
     when "COMM"
-      ticket = "8668"# AP::getsafeid(Dir.entries("agents/files/filebase/tickets")[2..-1])
+      ticket = AP.getsafeid(Dir.entries("agents/files/filebase/tickets")[2..-1])
       File.open("agents/files/filebase/tickets/#{ticket}.ini", "w") do |f1|
-      f1.puts "["
-        f1.puts "#{request[:Content][:Name]},"
-        f1.puts "#{request[:Content][:Ext]},"
-        f1.puts "#{request[:Content][:Date]}"
-        f1.puts "#{request[:Content][:Keywords]}"
-        f1.puts "]"
+        f1.puts {:code=>AP.getsafeid(FileBase.list($config[:DBpath]), 20), :name=>request[:Content][:Name],
+          :ext=>request[:Content][:Ext], :date=>request[:Content][:Date], :keywords=>request[:Content][:Keywords]}
       end
-      return {:Content=>{:Response=>:Registered, :Ticket=>ticket}}, true
+      return {:Content=>{:Response=>"Registered", :Ticket=>ticket}}, true
     when "SUBM"
-      if File.exists?("agents/files/filebase/tickets/#{request[:Content][:Ticket]}.ini")
-        file = eval(File.open("agents/files/filebase/tickets/#{request[:Content][:Ticket]}.ini").readlines.join(""))
-        FileUtils.cp("#{$config[:BayPath]}/#{request[:Content][:Ticket]}.#{file[1]}", "#{$config[:DBpath]}/#{file[0]}-#{file[2].to_s}.#{file[1]}")
+      ticket = ticket
+      if File.exists?("agents/files/filebase/tickets/#{ticket}.ini")
+        file = eval(File.open("agents/files/filebase/tickets/#{ticket}.ini").readlines.join(""))
+        FileUtils.cp("#{$config[:BayPath]}/#{ticket}", "#{$config[:DBpath]}/#{file[:code]}.#{file[:ext]}")
 
-        FileBase.add($config[:DBpath], {FileBase.getid(path)=>{:name=>file[0], :ext=>file[1], :date=>file[2], :keywords=>file[3]}})
-        FileUtils.rm("#{$config[:BayPath]}/#{request[:Content][:Ticket]}.#{file[1]}")
+        FileBase.add($config[:DBpath], file)
+        FileUtils.rm("#{$config[:BayPath]}/#{ticket}")
         return {:Content=>{:Response=>:Saved}}, true
       else
         AP::log("Bad Request: ticket not exists", @id, "error")
@@ -75,6 +72,14 @@ module FileBase
     end
     FileBase.commit(path, db)
     return true
+  end
+
+  def FileBase::list(path)
+    list = []
+    for entry in FileBase.load(path)
+      list.push(entry[:code])
+    end
+    return list
   end
 end
 

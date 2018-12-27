@@ -1,5 +1,5 @@
 module AP
-  def self.getsafeid(array, len = 4)
+  def AP::getsafeid(array, len = 4)
     id = SecureRandom.hex(len/2)
     while array.include?(id)
       id = SecureRandom.hex(len/2)
@@ -7,11 +7,11 @@ module AP
     return id
   end
 
-  def self.serialize(str, len, char="0") # DEPRECATED
+  def AP::serialize(str, len, char="0") # DEPRECATED
     return char*(len - str.length) + str
   end
 
-  def self.getagents(id, log = false)
+  def AP::getagents(id, log = false)
     AP::log("Loading agents...", id)
     begin
       agents = eval(File.open("agents/agents.ini").readlines.join(""))
@@ -38,7 +38,7 @@ module AP
     end
   end
 
-  def self.agentcommand?(agents, agentname, command)
+  def AP::agentcommand?(agents, agentname, command)
     for agent in agents
       return true if agent[:name] == agentname && agent[:commands].include?(command)
     end
