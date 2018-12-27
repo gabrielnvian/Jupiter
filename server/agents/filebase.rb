@@ -67,7 +67,14 @@ module FileBase
   end
 
   def FileBase::check(path) # Deletes non existing files
-    for file in Dir.entries()
+    db = FileBase.load(path)
+    db.each_with_index do |entry, i|
+      if !File.exists?("#{path}/#{entry}")
+        db.delete_at(i)
+      end
+    end
+    FileBase.commit(path, db)
+    return true
   end
 end
 
