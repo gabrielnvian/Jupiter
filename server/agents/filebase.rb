@@ -4,8 +4,9 @@ class Fulfillment
     when "COMM"
       ticket = AP.getsafeid(Dir.entries("agents/files/filebase/tickets")[2..-1])
       File.open("agents/files/filebase/tickets/#{ticket}.ini", "w") do |f1|
-        f1.puts {:code=>AP.getsafeid(FileBase.list($config[:DBpath]), 20), :name=>request[:Content][:Name],
+        t = {:code=>AP.getsafeid(FileBase.list($config[:DBpath]), 20), :name=>request[:Content][:Name],
           :ext=>request[:Content][:Ext], :date=>request[:Content][:Date], :keywords=>request[:Content][:Keywords]}
+        f1.puts t
       end
       return {:Content=>{:Response=>"Registered", :Ticket=>ticket}}, true
     when "SUBM"
