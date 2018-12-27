@@ -43,44 +43,37 @@ end
 
 
 module FileBase
-  def FileBase::add(path, item, db = FileBase.load(path)) # Adds a single item in the registry
-    if item[:id].kind_of?(String) && item[:name].kind_of?(String) && item[:date].kind_of?(Integer) && item[:keywords].kind_of?(Array)
-      File.open("#{path}/.db/registry", "w") do |f1|
-        f1.puts db.merge(item)
-      end
-      return true
-    else
-      raise Exception, "item fields missing or invalid"
-      return false
+  def FileBase::add(path, item)
+    db = FileBase.load(path)
+    File.open("#{path}/.db/registry", "w") do |f1|
+      f1.puts db.push(item)
     end
+    return true
   end
 
   def FileBase::commit(path, db) # Rewrites the entire registry with the new provided
-    if db.kind_of?(Hash)
+    if db.kind_of?(Array)
       File.open("#{path}/.db/registry", "w") do |f1|
         f1.puts db
       end
+      return true
+    else
+      return false
     end
-  end
-
-  def FileBase::defrag(path, db = FileBase.load(path))
-    db1 = Hash.new
-    for key in db.keys
-      db1[key] = db[key] if File.exists?("#{path}/#{db[key][:name]}.#{db[key][:ext]}")
-    end
-    FileBase.commit(path, db1)
   end
 
   def FileBase::load(path) # Loads and returns the registry
     return eval(File.open("#{path}/.db/registry").readlines.join(""))
   end
 
-  def FileBase::getid(path)
-    FileBase.defrag(path)
-    db = FileBase.load(path)
-    for key in db.keys
-      return key if db[key] == nil
-    end
-    return db.keys.length + 1
+  def FileBase::check(path) # Deletes non existing files
+    for file in Dir.entries()
   end
 end
+
+
+# a = {:id=>"1", :name=>"ciao.txt", :date=>Time.new.to_i, :keywords=>["file a caso", "boooh"]}
+
+# load "C:/Users/Java/Documents/GitHub/AlphaProtocol/server/agents/filebase.rb"
+
+# pa = "C:/Users/Java/Documents/GitHub/AlphaProtocol/server/agents/files/filebase/database"
