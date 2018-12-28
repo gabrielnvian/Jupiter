@@ -1,3 +1,4 @@
 server/logs
 server/agents/files/*
 server/config.ini
+server/auth
