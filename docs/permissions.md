@@ -10,10 +10,12 @@
 ### Users
 **server.users.create**
 **server.users.delete**
-**server.users.permissions**
+**server.users.changepwd**
+**server.users.changepow**
 
 
 
 # Power
 
 value between 0 and 10, where 10 is max and 0 is min.
+System has power 11
