@@ -38,10 +38,31 @@ module AP
     end
   end
 
+  def AP::getagentminpower(agents, agentname, command)
+    for agent in agents
+      if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
+        return agent[:commands][command.upcase]
+      end
+    end
+  end
+
   def AP::agentcommand?(agents, agentname, command)
     for agent in agents
-      return true if agent[:name] == agentname && agent[:commands].include?(command)
+      puts "##### #{agent[:name] == agentname.downcase} && #{agent[:commands].keys.include?(command.upcase)} #####"
+      return true if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
     end
     return false
+  end
+
+  def AP::jsontosym(h)
+    newhash = {}
+    for key in h.keys
+      if h[key].kind_of?(Hash)
+        newhash[key.to_sym] = AP.jsontosym(h[key])
+      else
+        newhash[key.to_sym] = h[key]
+      end
+    end
+    return newhash
   end
 end

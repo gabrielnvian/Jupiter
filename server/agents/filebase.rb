@@ -1,5 +1,5 @@
 class Fulfillment
-  def filebase(request)
+  def filebase(request, userinfo)
     case request[:Content][:Request]
     when "COMM"
       ticket = AP.getsafeid(Dir.entries("agents/files/filebase/tickets")[2..-1])

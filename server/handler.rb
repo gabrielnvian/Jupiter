@@ -48,27 +48,36 @@ module AP
               AP.log("Login failed (#{input[0]})", @id)
               @socket.puts(@headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"Login failed"}}).to_json)
             end
-          end
-
-          request = Hash.new
-          for key in input.keys
-            request[key.to_sym] = input[key]
-          end
-
-          agent.history.push([request]) # Save in history the request
-
-          if AP.agentcommand?(@agents, request[:User_Agent].downcase, request[:Content][:Request])
-            AP.log("Running agent \"#{request[:User_Agent]}\"", @id)
-            out = agent.public_send(request[:User_Agent].downcase, request)
-
-            AP.log("Responding to request...", @id)
-            out[1] ? response = @headers.merge(out[0]).to_json : response = out[0].to_json # If required merge request with headers
-            @socket.puts(response)
-            AP.log(response, @id, "rawout")
-            agent.history[-1].push(response) # Save in history the response
           else
-            AP.log("Bad request: Agent or command not exists", @id, "warning")
-            @socket.puts(@headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent or command does not exists"}}).to_json)
+            request = AP.jsontosym(input)
+
+            agent.history.push([request]) # Save in history the request
+
+            if AP.agentcommand?(@agents, request[:User_Agent], request[:Content][:Request])
+              required_power = AP.getagentminpower(@agents, request[:User_Agent], request[:Content][:Request])
+              if @userinfo[1] >= required_power
+                AP.log("Running agent \"#{request[:User_Agent]}\"", @id)
+                out = agent.public_send(request[:User_Agent].downcase, request, @userinfo)
+
+                AP.log("Responding to request...", @id)
+                out[1] ? response = @headers.merge(out[0]).to_json : response = out[0].to_json # If required merge request with headers
+                @socket.puts(response)
+                AP.log(response, @id, "rawout")
+                agent.history[-1].push(response) # Save in history the response
+              else # Not enough power
+                response = @headers.merge({"Code"=>"401 Unauthorized", "Content"=>{"Response"=>"PW#{@userinfo[1]} instead of required PW#{required_power}"}})
+                AP.log("Authorization issue: PW#{@userinfo[1]} instead of required PW#{required_power}", @id, "warning")
+                AP.log(response, @id, "rawout")
+                agent.history[-1].push(response) # Save in history the response
+                @socket.puts(response)
+              end
+            else # Invalid agent or command
+              response = @headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent or command does not exists"}}).to_json
+              AP.log("Bad request: Agent or command not exists", @id, "warning")
+              AP.log(response, @id, "rawout")
+              agent.history[-1].push(response) # Save in history the response
+              @socket.puts(response)
+            end
           end
         end
       rescue

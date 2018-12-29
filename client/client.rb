@@ -21,5 +21,5 @@ for i in 0..5
   puts "<<< " + JSON.parse(s.gets).to_json
 end
 
-s.puts headers.merge({:User_Agent=>"gethistory", :Connection=>"close", :Content=>{:Request=>"GetHistory"}}).to_json
+s.puts headers.merge({:User_Agent=>"gethistory", :Connection=>"close", :Content=>{:Request=>"GET"}}).to_json
 puts JSON.parse(s.gets).to_s.length
