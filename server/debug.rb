@@ -33,7 +33,7 @@ module AP
 
 		puts logfull1
 		
-		File.open("logs/#{$launchdate}.log", "a") do |f1|
+		File.open("logs/latest.log", "a") do |f1|
 			f1.puts logfull2
 		end
 	end

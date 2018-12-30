@@ -48,7 +48,6 @@ module AP
 
   def AP::agentcommand?(agents, agentname, command)
     for agent in agents
-      puts "##### #{agent[:name] == agentname.downcase} && #{agent[:commands].keys.include?(command.upcase)} #####"
       return true if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
     end
     return false

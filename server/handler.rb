@@ -22,7 +22,7 @@ module AP
 
         while request[:Connection] == "keep-alive"
           input = @socket.gets
-          AP.log(input, @id, "rawin")
+          tolog = input
 
           if input.nil? # Send flow to log:"socket closed" if buffer is nil
             AP.log("Bad request: request is empty", @id, "warning")
@@ -38,6 +38,7 @@ module AP
           
           input = JSON.parse(input)
 
+          # BEGIN LOGIN BLOCK ---------------------------------------------------------
           if input.kind_of?(Array) && @userinfo[0].nil?
             output = Auth.login(input[0], input[1])
             if output
@@ -48,7 +49,9 @@ module AP
               AP.log("Login failed (#{input[0]})", @id)
               @socket.puts(@headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"Login failed"}}).to_json)
             end
+          # END LOGIN BLOCK ------------------------------------------------------------
           else
+            AP.log(tolog, @id, "rawin")
             request = AP.jsontosym(input)
 
             agent.history.push([request]) # Save in history the request
@@ -65,7 +68,7 @@ module AP
                 AP.log(response, @id, "rawout")
                 agent.history[-1].push(response) # Save in history the response
               else # Not enough power
-                response = @headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"PW#{@userinfo[1]} instead of required PW#{required_power}"}})
+                response = @headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"PW#{@userinfo[1]} instead of required PW#{required_power}"}}).to_json
                 AP.log("Authorization issue: PW#{@userinfo[1]} instead of required PW#{required_power}", @id, "warning")
                 AP.log(response, @id, "rawout")
                 agent.history[-1].push(response) # Save in history the response
