@@ -5,10 +5,10 @@ module AP
       @id = id
       @agents = AP.getagents(@id)
       @headers = {
-        "AP"=>"3.0",
-        "APS"=>nil,
-        "Code"=>"200 OK",
-        "Content"=>{}
+        :AP=>"3.0",
+        :APS=>nil,
+        :Code=>"200 OK",
+        :Content=>{}
       }
       @userinfo = [nil, 0]
       AP.log("Handler created", @id)
@@ -65,14 +65,14 @@ module AP
                 AP.log(response, @id, "rawout")
                 agent.history[-1].push(response) # Save in history the response
               else # Not enough power
-                response = @headers.merge({"Code"=>"401 Unauthorized", "Content"=>{"Response"=>"PW#{@userinfo[1]} instead of required PW#{required_power}"}})
+                response = @headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"PW#{@userinfo[1]} instead of required PW#{required_power}"}})
                 AP.log("Authorization issue: PW#{@userinfo[1]} instead of required PW#{required_power}", @id, "warning")
                 AP.log(response, @id, "rawout")
                 agent.history[-1].push(response) # Save in history the response
                 @socket.puts(response)
               end
             else # Invalid agent or command
-              response = @headers.merge({"Code"=>"404 Not Found", "Content"=>{"Response"=>"Agent or command does not exists"}}).to_json
+              response = @headers.merge({:Code=>"404 Not Found", :Content=>{:Response=>"Agent or command does not exists"}}).to_json
               AP.log("Bad request: Agent or command not exists", @id, "warning")
               AP.log(response, @id, "rawout")
               agent.history[-1].push(response) # Save in history the response
@@ -86,7 +86,7 @@ module AP
         AP.log($!, @id, "backtrace")
         AP.log($!.backtrace, @id, "backtrace")
         
-        error = @headers.merge({"Code"=>"500 Internal Server Error"}).to_json
+        error = @headers.merge({:Code=>"500 Internal Server Error"}).to_json
         @socket.puts(error)
         AP.log(error, @id, "rawout")
       end
