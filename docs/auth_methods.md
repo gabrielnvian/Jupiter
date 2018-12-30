@@ -15,6 +15,35 @@
 | 2    | Cannot create an user with higher PW than the caller |
 
 
+
+## Auth.getpower
+### Inputs
+| Parameter       | Description          |
+|-----------------|----------------------|
+| usr             | Username of the user |
+
+### Outputs
+| Code  | Description                     |
+|-------|---------------------------------|
+| n     | "n" is the PW level of the user |
+
+
+
+## Auth.checkpwd
+### Inputs
+| Parameter       | Description          |
+|-----------------|----------------------|
+| usr             | Username of the user |
+| pwd             | Password of the user |
+
+### Outputs
+| Code  | Description             |
+|-------|-------------------------|
+| True  | Password match          |
+| False | Password does not match |
+
+
+
 ## Auth.changepwd
 ### Inputs
 | Parameter     | Description                                                                                   |
@@ -29,6 +58,8 @@
 |------|------------------------------------------------------------------------------|
 | 0    | Password changed successfully                                                |
 | 1    | Password does not match and user PW level is higher than the caller PW level |
+| 2    | User does not exist                                                          |
+
 
 
 ## Auth.deluser
@@ -44,3 +75,19 @@
 |------|------------------------------------------------------------------------------|
 | 0    | Password changed successfully                                                |
 | 1    | Password does not match and user PW level is higher than the caller PW level |
+| 2    | User does not exist                                                          |
+
+
+
+## Auth.login
+### Inputs
+| Parameter     | Description          |
+|---------------|----------------------|
+| usr           | Username of the user |
+| pwd           | Password of the user |
+
+### Outputs
+| Code  | Description                                       |
+|-------|---------------------------------------------------|
+| false | Password does not match or user does not exists   |
+| n     | Login successful. "n" is the PW level of the user |
