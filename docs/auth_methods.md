@@ -30,3 +30,19 @@
 | 0    | Password changed successfully        |
 | 1    | The caller has insufficient PW level |
 | 2    | Old password does not match          |
+
+
+## Auth.deluser
+### Inputs
+| Parameter     | Description                                                                                          |
+|---------------|------------------------------------------------------------------------------------------------------|
+| usr           | Username of the user                                                                                 |
+| (pwd) => nil  | User password. Use this if you delete an account you know the password of                            |
+| (reqpow) => 0 | Caller PW level.If you don't know the password for the user use another account with higher PW level |
+
+### Outputs
+| Code | Description                          |
+|------|--------------------------------------|
+| 0    | Password changed successfully        |
+| 1    | The caller has insufficient PW level |
+| 2    | User password does not match         |
