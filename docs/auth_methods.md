@@ -25,11 +25,10 @@
 | (reqpow) => 0 | If the old password is not known you can change it using another account with higher PW level |
 
 ### Outputs
-| Code | Description                          |
-|------|--------------------------------------|
-| 0    | Password changed successfully        |
-| 1    | The caller has insufficient PW level |
-| 2    | Old password does not match          |
+| Code | Description                                                                  |
+|------|------------------------------------------------------------------------------|
+| 0    | Password changed successfully                                                |
+| 1    | Password does not match and user PW level is higher than the caller PW level |
 
 
 ## Auth.deluser
@@ -41,8 +40,7 @@
 | (reqpow) => 0 | Caller PW level.If you don't know the password for the user use another account with higher PW level |
 
 ### Outputs
-| Code | Description                          |
-|------|--------------------------------------|
-| 0    | Password changed successfully        |
-| 1    | The caller has insufficient PW level |
-| 2    | User password does not match         |
+| Code | Description                                                                  |
+|------|------------------------------------------------------------------------------|
+| 0    | Password changed successfully                                                |
+| 1    | Password does not match and user PW level is higher than the caller PW level |
