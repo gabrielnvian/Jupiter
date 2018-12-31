@@ -41,7 +41,7 @@ class Fulfillment
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     indexes = [0]
 
-    if File.exists?("agents/files/hashcracker/#{hashtype}/#{hashtoc}.txt")
+    if File.exist?("agents/files/hashcracker/#{hashtype}/#{hashtoc}.txt")
       File.open("agents/files/hashcracker/#{hashtype}/#{hashtoc}.txt", "r") do |f1|
         return {:Content=>{:Response=>f1.gets.chomp, :Cached=>true, Time=>0}}, true
       end

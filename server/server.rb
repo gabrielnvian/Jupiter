@@ -15,16 +15,16 @@ require_relative "auth.rb"
 
 system("cls")
 
-if File.exists?(".running") && ARGV[0] != "force"
+if File.exist?(".running") && ARGV[0] != "force"
   AP.log("Another server is already running using this folder (.running)", nil, "error")
   exit!
 end
 
-File.exists?("agents") ? nil : FileUtils.mkdir_p("agents")
-File.exists?("auth") ? nil : FileUtils.mkdir_p("auth")
+File.exist?("agents") ? nil : FileUtils.mkdir_p("agents")
+File.exist?("auth") ? nil : FileUtils.mkdir_p("auth")
 
-File.exists?(".last.dll") ? lastlaunch = eval(File.open(".last.dll").readlines.join("")) : lastlaunch = "unknown#{rand(1111..9999)}"
-File.exists?("logs/latest.log") ? FileUtils.mv("logs/latest.log", "logs/#{lastlaunch}.log") : nil
+File.exist?(".last.dll") ? lastlaunch = eval(File.open(".last.dll").readlines.join("")) : lastlaunch = "unknown#{rand(1111..9999)}"
+File.exist?("logs/latest.log") ? FileUtils.mv("logs/latest.log", "logs/#{lastlaunch}.log") : nil
 
 $launchdate = Time.new.strftime("%d.%m.%Y-%H.%M")
 

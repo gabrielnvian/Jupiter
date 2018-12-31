@@ -1,6 +1,6 @@
 module AP
 	def AP::log(text, id, prefix = "log")
-		Dir.mkdir("logs") if !File.exists?("logs")
+		Dir.mkdir("logs") if !File.exist?("logs")
 		if id == nil
 			id = " - ####"
 		else

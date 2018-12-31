@@ -39,6 +39,6 @@ end
 
 class OnServerStartup
   def self.auth_adduser_root()
-    File.exists?("auth/root") ? nil : Auth.adduser("root", $config[:rootPWD], 11, 11)
+    File.exist?("auth/root") ? nil : Auth.adduser("root", $config[:rootPWD], 11, 11)
   end
 end
