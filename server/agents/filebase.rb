@@ -83,7 +83,7 @@ module FileBase
         return db
       end
     else
-      return false
+      return []
     end
   end
 
