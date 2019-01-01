@@ -14,11 +14,11 @@ class Fulfillment
       }
       return {:Content=>{:Response=>"Registered", :Ticket=>ticket}}, true
     when "SUBMIT"
-      ticket = ticket
+      ticket = request[:Content][:Ticket]
       if $filebase_tickets[ticket] != nil
         data = $filebase_tickets[ticket]
-        FileUtils.cp("#{$config[:BayPath]}/#{ticket}", "#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
-        FileUtils.rm("#{$config[:BayPath]}/#{ticket}")
+        FileUtils.cp("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
+        FileUtils.rm("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}")
         
         FileBase.add($config[:DBpath], data)
 
@@ -68,7 +68,12 @@ module FileBase
 
   def FileBase::load(path) # Loads and returns the registry
     if File.exist?("#{path}/.db/registry")
-      return eval(File.open("#{path}/.db/registry").readlines.join(""))
+      db = eval(File.open("#{path}/.db/registry").readlines.join(""))
+      if db.nil?
+        return []
+      else
+        return db
+      end
     else
       return false
     end
