@@ -1,6 +1,6 @@
 module AP
 	def AP::log(text, id, prefix = "log")
-		Dir.mkdir("logs") if !File.exists?("logs")
+		Dir.mkdir("logs") if !File.exist?("logs")
 		if id == nil
 			id = " - ####"
 		else
@@ -28,12 +28,13 @@ module AP
 			prefix = "[91m[ NTDEF ][0m"
 		end
 
-		logfull = "[7m#{Time.new.strftime('%d/%m/%Y %H:%M:%S')}[0m #{prefix}#{id}  #{text}"
+		logfull1 = "[7m#{Time.new.strftime('%d/%m %H:%M:%S')}[0m #{prefix}#{id}  #{text}"
+		logfull2 = "[7m#{Time.new.strftime('%d/%m/%Y %H:%M:%S')}[0m #{prefix}#{id}  #{text}"
 
-		puts logfull
+		puts logfull1
 		
-		File.open("logs/#{$launchdate}.log", "a") do |f1|
-			f1.puts logfull
+		File.open("logs/latest.log", "a") do |f1|
+			f1.puts logfull2
 		end
 	end
 end

@@ -1,3 +1,6 @@
 server/logs
 server/agents/files/*
 server/config.ini
+server/auth
+server/.last.dll
+server/.running
