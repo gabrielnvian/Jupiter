@@ -43,6 +43,13 @@ class OnServerStartup
   def self.filebase_create_subfolders()
     FileUtils.mkdir_p("#{$config[:DBpath]}/.db")
   end
+
+  def self.filebase_create_registry()
+    if !File.exist?("#{$config[:DBpath]}/.db/registry")
+      File.open("#{$config[:DBpath]}/.db/registry") do |f1|
+        f1.print ""
+    end
+  end
 end
 
 
