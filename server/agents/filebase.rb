@@ -48,6 +48,7 @@ class OnServerStartup
     if !File.exist?("#{$config[:DBpath]}/.db/registry")
       File.open("#{$config[:DBpath]}/.db/registry") do |f1|
         f1.print ""
+      end
     end
   end
 end
