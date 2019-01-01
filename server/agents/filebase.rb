@@ -76,7 +76,7 @@ module FileBase
 
   def FileBase::load(path) # Loads and returns the registry
     if File.exist?("#{path}/.db/registry")
-      db = eval(File.open("#{path}/.db/registry").readlines.join(""))
+      db = eval("[" + File.open("#{path}/.db/registry").readlines.join("") + "]")
       if db.nil?
         return []
       else
