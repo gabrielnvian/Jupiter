@@ -46,7 +46,7 @@ class OnServerStartup
 
   def self.filebase_create_registry()
     if !File.exist?("#{$config[:DBpath]}/.db/registry")
-      File.open("#{$config[:DBpath]}/.db/registry") do |f1|
+      File.open("#{$config[:DBpath]}/.db/registry", "w") do |f1|
         f1.print ""
       end
     end
