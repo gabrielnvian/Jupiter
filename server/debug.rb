@@ -2,7 +2,7 @@ module AP
 	def AP::log(text, id, prefix = "log")
 		Dir.mkdir("logs") if !File.exist?("logs")
 		if id == nil
-			id = " - ####"
+			id = " - [7mSYSM[0m"
 		else
 			id = " - #{id}"
 		end

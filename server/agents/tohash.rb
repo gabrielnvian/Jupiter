@@ -1,5 +1,3 @@
-require "digest"
-
 class Fulfillment
   def tohash(request, userinfo)
     hashtype = request[:Content][:Hashtype].downcase

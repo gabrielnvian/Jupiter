@@ -1,9 +1,9 @@
 module AP
   class Handler
-    def initialize(socket, id)
+    def initialize(socket, id, agents)
       @socket = socket
       @id = id
-      @agents = AP.getagents(@id)
+      @agents = agents
       @headers = {
         :AP=>"3.0",
         :APS=>nil,
