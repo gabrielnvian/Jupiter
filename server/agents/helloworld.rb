@@ -1,6 +1,6 @@
 class Fulfillment
   def helloworld(request, userinfo)
-    case request[:Content][:request]
+    case request[:Content][:Request]
     when "HELLOWORLD"
       return {:Content=>{:Response=>"Hello World! :D"}}, true
     when "CLOSE"
