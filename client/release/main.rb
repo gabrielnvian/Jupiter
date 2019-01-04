@@ -4,8 +4,9 @@ require "socket"
 require_relative "core.rb"
 require_relative "auth.rb"
 
+HOST = "localhost"
 #HOST = "192.168.1.130"
-HOST = "138.201.65.198"
+#HOST = "138.201.65.198"
 PORT = 2556
 
 $credentials = [nil, 0]
@@ -24,6 +25,12 @@ begin
       Auth.login(cmd.split(" ")[1], cmd.split(" ")[2])
     when "logout", "disconnect"
       Auth.logout()
+    when "adduser"
+      Auth.adduser(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
+    when "deluser"
+      Auth.deluser()
+    when "changepwd"
+      Auth.changepwd()
     else
       AP.output("Comando non riconosciuto")
     end
