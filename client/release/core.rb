@@ -3,7 +3,7 @@ module AP
     begin
       return TCPSocket.new HOST, PORT
     rescue
-      AP.input("Connessione al server fallita", false)
+      AP.output("Connessione al server fallita")
       return nil
     end
   end
@@ -20,26 +20,27 @@ module AP
     return newhash
   end
 
-  def AP::input(text = nil, get = true)
+  def AP::input(text = nil)
     #system("cls")
-    system("title AP Client - #{$credentials[0] ? $credentials[0] : "Login non eseguito"}")
+    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
-      print "#{$credentials[0] ? $credentials[0] : "nil"}@#{HOST} > "
+      print "#{$credentials[0] ? $credentials[0] : "nil"}@#{HOST}[#{$credentials[1]}] > "
     else
       print "#{text} > "
     end
-    if get
-      return gets.chomp
-    else
-      return nil
-    end
+    return gets.chomp
+  end
+
+  def AP::output(text)
+    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
+    puts text
   end
 end
 
-headers = {
+$headers = {
   :AP=>"3.0",
   :APS=>false,
-  :User_Agent=>"auth",
+  :User_Agent=>"HelloWorld",
   :Connection=>"keep-alive",
   :Content=>{}
 }
