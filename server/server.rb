@@ -16,7 +16,7 @@ require_relative "auth.rb"
 system("cls")
 
 if File.exist?(".running") && ARGV[0] != "force"
-  AP.log("Another server is already running using this folder (.running)", nil, "error")
+  AP.log("Another server is already running using these files (.running)", nil, "error")
   exit!
 end
 
@@ -43,7 +43,7 @@ AP.log("Server bound to #{$config[:address]}:#{$config[:port]}", nil, "server")
 
 
 # Tasks on server startup
-agents = AP.getagents(nil, true)
+agents = AP.getagents()
 
 AP.log("Running startup tasks...", nil, "server")
 ranTasks = 0
@@ -67,7 +67,7 @@ while true
         system("title AlphaProtocol Server (#{$open_sessions})")
         id = SecureRandom.hex(2)
         AP.log("Socket opened", id, "socket")
-        handler = AP::Handler.new(socket, id)
+        handler = AP::Handler.new(socket, id, agents)
         handler.run()
       rescue
         AP.log("Error while creating socket", id, "error")

@@ -1,5 +1,3 @@
-require "digest"
-
 class Fulfillment
   def hashcracker(request, userinfo)
     def buildString(indexes, chars)

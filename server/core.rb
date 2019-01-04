@@ -11,29 +11,52 @@ module AP
     return char*(len - str.length) + str
   end
 
-  def AP::getagents(id, log = false)
-    AP::log("Loading agents...", id)
+  def AP::getagents()
+    AP.log("Loading agents...", nil)
     begin
+      needed_install = false
       agents = eval(File.open("agents/agents.ini").readlines.join(""))
       agents.each_with_index do |agent, i|
         if agent[:active]
           FileUtils.mkdir_p("agents/files/#{agent[:name]}")
+          
           for folder in agent[:folders]
             FileUtils.mkdir_p("agents/files/#{agent[:name]}/#{folder}")
           end
+
+          for dependency in agent[:dependencies]
+            begin
+              require dependency
+            rescue LoadError
+              begin
+                needed_install = true
+                AP.log("Installing dependency \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "warning")
+                system("gem install #{dependency} >nul")
+                AP.log("Successfully installed \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "log")
+              rescue
+                AP.log("Failed to install dependency \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "error")
+              end
+            end
+          end
+          
           load "agents/#{agent[:name]}.rb"
         else
           agents.delete_at(i)
         end
       end
 
-      log ? AP::log("Agents loaded: #{agents}", id) : nil
+      if needed_install
+        AP.log("Restart required after gem install", nil, "error")
+        exit!
+      end
+
+      AP.log("Agents loaded: #{agents}", nil)
       
       return agents
     rescue
-      AP::log("Error while parsing agents", @id, "error")
-      AP::log($!, @id, "backtrace")
-      AP::log($!.backtrace, @id, "backtrace")
+      AP.log("Error while parsing agents", nil, "error")
+      AP.log($!, nil, "backtrace")
+      AP.log($!.backtrace, nil, "backtrace")
       return nil
     end
   end

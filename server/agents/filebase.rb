@@ -42,6 +42,7 @@ $filebase_tickets = {}
 class OnServerStartup
   def self.filebase_create_subfolders()
     FileUtils.mkdir_p("#{$config[:DBpath]}/.db")
+    FileUtils.mkdir_p("#{$config[:DBpath]}/.backup")
   end
 
   def self.filebase_create_registry()
@@ -102,5 +103,8 @@ module FileBase
       list.push(entry[:code])
     end
     return list
+  end
+
+  def FileBase::snapshot(path)
   end
 end
