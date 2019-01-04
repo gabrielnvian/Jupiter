@@ -28,7 +28,7 @@ begin
     when "adduser"
       Auth.adduser(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
     when "deluser"
-      Auth.deluser()
+      Auth.deluser(cmd.split(" ")[1], cmd.split(" ")[2])
     when "changepwd"
       Auth.changepwd()
     else
@@ -37,6 +37,7 @@ begin
   end
 rescue Interrupt
   if $server
-    $server.puts $headers.merge({:Connection=>"close", :Content=>{:Request=>"HelloWorld"}}).to_json
+    puts "\nDisconnessione automatica..."
+    Auth.logout()
   end
 end

@@ -34,7 +34,7 @@ module Auth
       response = AP.jsontosym(JSON.parse($server.gets))
       $server = nil
       $credentials = [nil, 0]
-      puts response#[:Content][:Response]
+      puts response[:Content][:Response]
       if response[:Code] == CODE_OK
         return true
       else
@@ -70,7 +70,20 @@ module Auth
     end
   end
 
-  def Auth::deluser()
+  def Auth::deluser(user, pwd)
+    if user.nil?
+      user = AP.input("username")
+    end
+
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"DELUSER", :Username=>user, :PWD=>pwd}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts response[:Content][:Response]
+      return true
+    end
   end
 
   def Auth::changepwd()

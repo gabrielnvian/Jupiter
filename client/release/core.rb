@@ -28,7 +28,7 @@ module AP
     else
       print "#{text} > "
     end
-    return gets.chomp
+    return gets.to_s.chomp
   end
 
   def AP::output(text)
