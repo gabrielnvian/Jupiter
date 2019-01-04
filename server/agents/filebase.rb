@@ -12,7 +12,7 @@ class Fulfillment
         :owner=>request[:Content][:Owner] ? request[:Content][:Owner] : userinfo[0],
         :minPW=>request[:Content][:minPW] ? request[:Content][:minPW] : userinfo[1]
       }
-      return {:Content=>{:Response=>"Registered", :Ticket=>ticket}}, true
+      return {:Content=>{:Response=>"Dati salvati", :Ticket=>ticket}}, true
     when "SUBMIT"
       ticket = request[:Content][:Ticket]
       if $filebase_tickets[ticket] != nil
@@ -28,9 +28,9 @@ class Fulfillment
         end
         $filebase_tickets = newhash
 
-        return {:Content=>{:Response=>"Saved"}}, true
+        return {:Content=>{:Response=>"Dati aggiunti al database"}}, true
       else
-        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Ticket does not exists"}}, true
+        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Ticket non esistente"}}, true
       end
     end
   end
@@ -77,9 +77,8 @@ module FileBase
 
   def FileBase::load(path) # Loads and returns the registry
     if File.exist?("#{path}/.db/registry")
-      lines = File.open("#{path}/.db/registry").readlines
       db = []
-      for entry in lines
+      for entry in File.readlines("#{path}/.db/registry")
         db.push(eval(entry))
       end
       return db

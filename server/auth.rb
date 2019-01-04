@@ -8,7 +8,6 @@ module Auth
         File.open("auth/#{usr}.ini", "w") do |f1|
           hashed = Digest::MD5.hexdigest(pwd).downcase
           f1.puts "['#{hashed}', #{pow}]"
-          f1.close
         end
         return 0
       end
@@ -19,7 +18,7 @@ module Auth
 
   def Auth::getpower(usr)
     if File.exist?("auth/#{usr}.ini")
-      return eval(File.open("auth/#{usr}.ini").readlines.join(""))[1]
+      return eval(File.readlines("auth/#{usr}.ini").join(""))[1]
     else
       return -1
     end
@@ -27,7 +26,7 @@ module Auth
 
   def Auth.checkpwd(usr, pwd)
     if File.exist?("auth/#{usr}.ini")
-      return eval(File.open("auth/#{usr}.ini").readlines.join(""))[0] == Digest::MD5.hexdigest(pwd.to_s).downcase
+      return eval(File.readlines("auth/#{usr}.ini").join(""))[0] == Digest::MD5.hexdigest(pwd.to_s).downcase
     else
       return false
     end
@@ -59,23 +58,26 @@ module Auth
   end
 
   def Auth::deluser(usr, pwd = nil, reqpow = 0)
-    if File.exist?("auth/#{usr}.ini")
-      if reqpow > Auth.getpower(usr)
-        FileUtils.rm_rf("auth/#{usr}.ini")
-        return 0
-      else
-        if Auth.checkpwd(usr, pwd)
+    if usr == "root"
+      return 3
+    else
+      if File.exist?("auth/#{usr}.ini")
+        if reqpow > Auth.getpower(usr)
           FileUtils.rm_rf("auth/#{usr}.ini")
           return 0
         else
-          return 1
+          if Auth.checkpwd(usr, pwd)
+            FileUtils.rm_rf("auth/#{usr}.ini")
+            return 0
+          else
+            return 1
+          end
         end
+      else
+        return 2
       end
-    else
-      return 2
     end
   end
-
 
   def Auth::login(usr, pwd)
     if File.exist?("auth/#{usr}.ini")
@@ -89,6 +91,3 @@ module Auth
     end
   end
 end
-
-# If root user is missing, create it
-# File.exist?("auth/root") ? nil : Auth.adduser("root", $config[:rootPWD], 11, 11)
