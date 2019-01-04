@@ -1,6 +1,7 @@
 module Auth
   def Auth::adduser(usr, pwd, reqpow, pow = reqpow)
-    if reqpow >= pow
+    pow.nil? ? pow = reqpow : nil
+    if reqpow >= pow.to_i
       if File.exist?("auth/#{usr}.ini")
         return 1
       else

@@ -89,7 +89,7 @@ module AP
         AP.log($!, @id, "backtrace")
         AP.log($!.backtrace, @id, "backtrace")
         
-        error = @headers.merge({:Code=>"500 Internal Server Error"}).to_json
+        error = @headers.merge({:Code=>"500 Internal Server Error", :Content=>{:Response=>"Internal Server Error"}}).to_json
         @socket.puts(error)
         AP.log(error, @id, "rawout")
       end
