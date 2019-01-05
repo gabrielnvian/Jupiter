@@ -12,10 +12,10 @@ module AP
   end
 
   def AP::getagents()
-    AP.log("Loading agents...", nil)
+    AP.log("Caricamento agenti...", nil)
     begin
       needed_install = false
-      agents = eval(File.open("agents/agents.ini").readlines.join(""))
+      agents = eval(File.readlines("agents/agents.ini").join(""))
       agents.each_with_index do |agent, i|
         if agent[:active]
           FileUtils.mkdir_p("agents/files/#{agent[:name]}")
@@ -30,11 +30,11 @@ module AP
             rescue LoadError
               begin
                 needed_install = true
-                AP.log("Installing dependency \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "warning")
+                AP.log("Installazione libreria \"#{dependency}\" richiesta da \"#{agent[:name]}\"", nil, "warning")
                 system("gem install #{dependency} >nul")
-                AP.log("Successfully installed \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "log")
+                AP.log("Libreria \"#{dependency}\" installata con successo per \"#{agent[:name]}\"", nil, "log")
               rescue
-                AP.log("Failed to install dependency \"#{dependency}\" for agent \"#{agent[:name]}\"", nil, "error")
+                AP.log("Installazione libreria \"#{dependency}\" per \"#{agent[:name]}\" fallita", nil, "error")
               end
             end
           end
@@ -46,15 +46,15 @@ module AP
       end
 
       if needed_install
-        AP.log("Restart required after gem install", nil, "error")
+        AP.log("E' necessario un riavvio per completare l'installazione delle librerie", nil, "error")
         exit!
       end
 
-      AP.log("Agents loaded: #{agents}", nil)
+      AP.log("Agenti attivi: #{agents}", nil)
       
       return agents
     rescue
-      AP.log("Error while parsing agents", nil, "error")
+      AP.log("Caricamento agenti fallito", nil, "error")
       AP.log($!, nil, "backtrace")
       AP.log($!.backtrace, nil, "backtrace")
       return nil

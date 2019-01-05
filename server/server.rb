@@ -16,7 +16,7 @@ require_relative "auth.rb"
 system("cls")
 
 if File.exist?(".running") && ARGV[0] != "force"
-  AP.log("Another server is already running using these files (.running)", nil, "error")
+  AP.log("Un'altra istanza e' in esecuzione utilizzando la stessa cartella (.running)", nil, "error")
   exit!
 end
 
@@ -38,14 +38,14 @@ end
 
 server = TCPServer.new $config[:address], $config[:port]
 
-ARGV[0] == "force" ? AP.log("Forced server start", nil, "warning") : nil
-AP.log("Server bound to #{$config[:address]}:#{$config[:port]}", nil, "server")
+ARGV[0] == "force" ? AP.log("L'avvio del server e' stato forzato", nil, "warning") : nil
+AP.log("Server in ascolto su #{$config[:address]}:#{$config[:port]}", nil, "server")
 
 
 # Tasks on server startup
 agents = AP.getagents()
 
-AP.log("Running startup tasks...", nil, "server")
+AP.log("Lancio script di avvio in corso...", nil, "server")
 ranTasks = 0
 agents.each do |agent|
   agent[:startupTasks].each do |task|
@@ -53,10 +53,10 @@ agents.each do |agent|
     OnServerStartup.public_send(task)
   end
 end
-AP.log("Ran #{ranTasks} startup tasks", nil, "server")
+AP.log("Lanciati #{ranTasks} script di avvio", nil, "server")
 
 
-AP.log("Listening for connections...", nil, "server")
+AP.log("In attesa di connessioni...", nil, "server")
 $open_sessions = 0
 system("title AlphaProtocol Server (#{$open_sessions})")
 while true
@@ -66,22 +66,22 @@ while true
         $open_sessions += 1
         system("title AlphaProtocol Server (#{$open_sessions})")
         id = SecureRandom.hex(2)
-        AP.log("Socket opened", id, "socket")
+        AP.log("Socket aperto", id, "socket")
         handler = AP::Handler.new(socket, id, agents)
         handler.run()
       rescue
-        AP.log("Error while creating socket", id, "error")
+        AP.log("Errore nel creare il socket", id, "error")
         AP.log($!, id, "backtrace")
         AP.log($!.backtrace, id, "backtrace")
-        @socket.puts(@headers.merge({"Code"=>"500 Internal Server Error"}).to_json)
+        @socket.puts(@headers.merge({:Code=>"500 Internal Server Error", :Content=>{:Response=>"Errore interno del server"}}).to_json)
       end
       $open_sessions -= 1
       system("title AlphaProtocol Server (#{$open_sessions})")
-      AP.log("Socket closed", id, "socket")
+      AP.log("Socket chiuso", id, "socket")
     end
   rescue Interrupt
     FileUtils.rm_rf(".running")
-    AP.log("Server stopped", nil, "server")
+    AP.log("Server disabilitato", nil, "server")
     exit!
   end
 end
