@@ -12,7 +12,7 @@ class Fulfillment
         :owner=>request[:Content][:Owner] ? request[:Content][:Owner] : userinfo[0],
         :minPW=>request[:Content][:minPW] ? request[:Content][:minPW] : userinfo[1]
       }
-      return {:Content=>{:Response=>"Dati salvati", :Ticket=>ticket}}, true
+      return {:Content=>{:Response=>"Registrazione eseguita con successo", :Ticket=>ticket}}, true
     when "SUBMIT"
       ticket = request[:Content][:Ticket]
       if $filebase_tickets[ticket] != nil
@@ -28,9 +28,9 @@ class Fulfillment
         end
         $filebase_tickets = newhash
 
-        return {:Content=>{:Response=>"Dati aggiunti al database"}}, true
+        return {:Content=>{:Response=>"File aggiunto al database"}}, true
       else
-        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Ticket non esistente"}}, true
+        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Prima di completare la registrazione e' necessario inviare i dati"}}, true
       end
     end
   end
