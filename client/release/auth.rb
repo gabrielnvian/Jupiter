@@ -86,6 +86,23 @@ module Auth
     end
   end
 
-  def Auth::changepwd()
+  def Auth::changepwd(user, newpwd, pwd)
+    if user.nil?
+      user = AP.input("username")
+    end
+
+    if newpwd.nil?
+      newpwd = AP.input("nuova password")
+    end
+
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts response[:Content][:Response]
+      return true
+    end
   end
 end

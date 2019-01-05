@@ -19,18 +19,28 @@ begin
     cmd = AP.input()
 
     case cmd.split(" ")[0]
+    # CONNECTION ---------------------------------------------------------------
     when "connect"
       $server = AP.connect()
     when "login"
       Auth.login(cmd.split(" ")[1], cmd.split(" ")[2])
     when "logout", "disconnect"
       Auth.logout()
+    # USER MGM -----------------------------------------------------------------
     when "adduser"
       Auth.adduser(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
     when "deluser"
       Auth.deluser(cmd.split(" ")[1], cmd.split(" ")[2])
     when "changepwd"
-      Auth.changepwd()
+      Auth.changepwd(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
+    # FILEBASE ------------------------------------------------------------------
+    when "filebase"
+      case cmd.split(" ")[1]
+      when "addfile", "add"
+        FileBase.addfile(cmd.split(" ")[2])
+      else
+        AP.output("FileBase: comando non riconosciuto")
+      end
     else
       AP.output("Comando non riconosciuto")
     end
