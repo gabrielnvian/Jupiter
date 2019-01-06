@@ -1,11 +1,13 @@
+require "net/ftp"
+
 module FileBase
   def FileBase::addfile(path)
     if path.nil?
-      path = AP.input("path")
+      path = AP.input("path").gsub(File::ALT_SEPARATOR, File::SEPARATOR)
     end
 
     fname = File.basename(path, ".*")
-    fext = File.extname(path)
+    fext = File.extname(path)[1..-1]
     fdate = Time.new.to_i
 
     fname == "" ? fname = nil : nil
@@ -28,8 +30,11 @@ module FileBase
       puts response[:Content][:Response]
       if response[:Code] == CODE_OK
         ticket = response[:Content][:Ticket]
-        FileBase.uploadfile(path, ticket)
-        $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"SUBMIT", :Ticket=>ticket}}).to_json
+        if FileBase.uploadfile(path, ticket)
+          $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"SUBMIT", :Ticket=>ticket}}).to_json
+          response = AP.jsontosym(JSON.parse($server.gets))
+          puts response[:Content][:Response]
+        end
       end
     else
       return false
@@ -37,6 +42,19 @@ module FileBase
   end
 
 
-  def FileBase::uploadfile()
+  def FileBase::uploadfile(path, ticket)
+    puts "Caricamento file..."
+    begin
+      ftp = Net::FTP.new
+      ftp.connect(HOST, "12345")
+      ftp.login("BAY", "bay")
+      ftp.passive = true
+      ftp.putbinaryfile(path, "#{ticket}#{File.extname(path)}")
+      ftp.close
+      return true
+    rescue
+      puts "C'e' stato un errore durante il trasferimento del file."
+      return false
+    end
   end
 end

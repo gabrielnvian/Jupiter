@@ -3,10 +3,11 @@ require "socket"
 
 require_relative "core.rb"
 require_relative "auth.rb"
+require_relative "filebase.rb"
 
-HOST = "localhost"
+#HOST = "localhost"
 #HOST = "192.168.1.130"
-#HOST = "138.201.65.198"
+HOST = "138.201.65.198"
 PORT = 2556
 
 $credentials = [nil, 0]
