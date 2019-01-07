@@ -23,6 +23,11 @@ begin
     # CONNECTION ---------------------------------------------------------------
     when "connect"
       $server = AP.connect()
+    when "exit"
+      if $server
+        puts "\nDisconnessione automatica..."
+        Auth.logout()
+      end
     when "login"
       Auth.login(cmd.split(" ")[1], cmd.split(" ")[2])
     when "logout", "disconnect"
