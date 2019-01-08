@@ -1,7 +1,7 @@
 module Auth
   def Auth::adduser(usr, pwd, reqpow, pow)
     pow.nil? ? pow = reqpow : nil
-    pow.to_i > 10 ? pow = 10 : nil
+    pow.to_i > 10  && usr != "root" ? pow = 10 : nil
     if reqpow >= pow.to_i
       if File.exist?("auth/#{usr}.ini")
         return 1
@@ -90,5 +90,15 @@ module Auth
     else
       return false
     end
+  end
+
+  def Auth::list(reqpow)
+    list = []
+    for entry in Dir.entries("auth")[2..-1]
+      list.push([entry.split(".")[0], Auth.getpower(entry.split(".")[0])])
+    end
+    return list
+  else
+    return false
   end
 end

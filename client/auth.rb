@@ -14,7 +14,7 @@ module Auth
     if $server
       $server.puts [user, pwd].to_json
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts "\n" + response[:Content][:Response]
+      puts response[:Content][:Response]
       if response[:Code] == CODE_OK
         $credentials = [user, response[:Content][:Power]]
         return true
@@ -50,7 +50,11 @@ module Auth
     end
 
     if pwd.nil?
-      pwd = AP.input("password")
+      pwd = AP.input("password", true)
+    end
+
+    if pow.nil?
+      pow = AP.input("PW level")
     end
 
     if $server.nil?
@@ -99,6 +103,22 @@ module Auth
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       puts response[:Content][:Response]
+      return true
+    end
+  end
+
+  def Auth::list()
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"LIST"}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      if response[:Code] == CODE_OK
+        AP.table(response[:Content][:Response].unshift(["Username", "Livello PW"]))
+      else
+        puts response[:Content][:Response]
+      end 
       return true
     end
   end

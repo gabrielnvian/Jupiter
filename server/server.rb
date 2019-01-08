@@ -81,7 +81,7 @@ while true
     end
   rescue Interrupt
     FileUtils.rm_rf(".running")
-    AP.log("Server disabilitato", nil, "server")
+    AP.log("Server offline", nil, "server")
     exit!
   end
 end
