@@ -1,3 +1,5 @@
+require "io/console"
+
 module AP
   def AP::connect()
     begin
@@ -20,7 +22,7 @@ module AP
     return newhash
   end
 
-  def AP::input(text = nil)
+  def AP::input(text = nil, pwd = false)
     #system("cls")
     system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
@@ -28,7 +30,21 @@ module AP
     else
       print "#{text} > "
     end
-    return gets.to_s.chomp
+    if pwd
+      i = STDIN.noecho(&:gets).chomp
+      if i = ""
+        return nil
+      else
+        return i
+      end
+    else
+      i = gets.to_s.chomp
+      if i = ""
+        return nil
+      else
+        return i
+      end
+    end
   end
 
   def AP::output(text)

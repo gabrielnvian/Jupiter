@@ -2,28 +2,28 @@ require "net/ftp"
 
 module FileBase
   def FileBase::addfile(path)
-    if path.nil?
-      path = AP.input("path").gsub(File::ALT_SEPARATOR, File::SEPARATOR)
-    end
-
-    fname = File.basename(path, ".*")
-    fext = File.extname(path)[1..-1]
-    fdate = Time.new.to_i
-
-    fname == "" ? fname = nil : nil
-    fext == "" ? fext = nil : nil
-    fdate == "" ? fdate = nil : nil
-
-    keywords = AP.input("keywords").split(" ")
-    owner = AP.input("owner")
-    minPW = AP.input("minPW")
-
-    $server ? nil : $server = AP.connect()
-    if $server.nil?
-      a = AP.input("Connettere automaticamente?")
-    end
-
     if $server
+      if path.nil?
+        path = AP.input("path").gsub(File::ALT_SEPARATOR, File::SEPARATOR).gsub("\"", "")
+      end
+
+      fname = File.basename(path, ".*")
+      fext = File.extname(path)[1..-1]
+      fdate = Time.new.to_i
+
+      fname == "" ? fname = nil : nil
+      fext == "" ? fext = nil : nil
+      fdate == "" ? fdate = nil : nil
+
+      keywords = AP.input("keywords").split(" ")
+      owner = AP.input("owner")
+      minPW = AP.input("minPW")
+
+      $server ? nil : $server = AP.connect()
+      if $server.nil?
+        a = AP.input("Connettere automaticamente?")
+      end
+
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"INIT", :Name=>fname, :Ext=>fext, :Date=>fdate,
         :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
@@ -37,6 +37,7 @@ module FileBase
         end
       end
     else
+      AP.output("Non sei connesso a nessun server")
       return false
     end
   end

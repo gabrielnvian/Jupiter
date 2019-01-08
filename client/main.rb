@@ -18,37 +18,40 @@ system("cls")
 begin
   while true
     cmd = AP.input()
-
-    case cmd.split(" ")[0]
-    # CONNECTION ---------------------------------------------------------------
-    when "connect"
-      $server = AP.connect()
-    when "exit"
-      if $server
-        puts "\nDisconnessione automatica..."
+    begin
+      case cmd.split(" ")[0]
+      # CONNECTION ---------------------------------------------------------------
+      when "connect"
+        $server = AP.connect()
+      when "exit"
+        if $server
+          puts "\nDisconnessione automatica..."
+          Auth.logout()
+        end
+      when "login"
+        Auth.login(cmd.split(" ")[1])
+      when "logout", "disconnect"
         Auth.logout()
-      end
-    when "login"
-      Auth.login(cmd.split(" ")[1], cmd.split(" ")[2])
-    when "logout", "disconnect"
-      Auth.logout()
-    # USER MGM -----------------------------------------------------------------
-    when "adduser"
-      Auth.adduser(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
-    when "deluser"
-      Auth.deluser(cmd.split(" ")[1], cmd.split(" ")[2])
-    when "changepwd"
-      Auth.changepwd(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
-    # FILEBASE ------------------------------------------------------------------
-    when "filebase"
-      case cmd.split(" ")[1]
-      when "addfile", "add"
-        FileBase.addfile(cmd.split(" ")[2])
+      # USER MGM -----------------------------------------------------------------
+      when "adduser"
+        Auth.adduser(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
+      when "deluser"
+        Auth.deluser(cmd.split(" ")[1], cmd.split(" ")[2])
+      when "changepwd"
+        Auth.changepwd(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
+      # FILEBASE ------------------------------------------------------------------
+      when "filebase"
+        case cmd.split(" ")[1]
+        when "addfile", "add"
+          FileBase.addfile(cmd.split(" ")[2])
+        else
+          AP.output("FileBase: comando non riconosciuto")
+        end
       else
-        AP.output("FileBase: comando non riconosciuto")
+        AP.output("Comando non riconosciuto")
       end
-    else
-      AP.output("Comando non riconosciuto")
+    rescue Interrupt
+      puts "\nComando annullato"
     end
   end
 rescue Interrupt

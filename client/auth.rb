@@ -1,12 +1,10 @@
 module Auth
-  def Auth::login(user, pwd)
+  def Auth::login(user)
     if user.nil?
       user = AP.input("username")
     end
 
-    if pwd.nil?
-      pwd = AP.input("password")
-    end
+    pwd = AP.input("password", true)
 
     $server ? nil : $server = AP.connect()
     if $server.nil?
@@ -16,7 +14,7 @@ module Auth
     if $server
       $server.puts [user, pwd].to_json
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts response[:Content][:Response]
+      puts "\n" + response[:Content][:Response]
       if response[:Code] == CODE_OK
         $credentials = [user, response[:Content][:Power]]
         return true
@@ -91,9 +89,8 @@ module Auth
       user = AP.input("username")
     end
 
-    if newpwd.nil?
-      newpwd = AP.input("nuova password")
-    end
+    pwd = AP.input("vecchia password", true)
+    newpwd = AP.input("nuova password", true)
 
     if $server.nil?
       puts "Devi essere connesso per lanciare questo comando"
