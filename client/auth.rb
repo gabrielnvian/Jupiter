@@ -1,83 +1,105 @@
-require "json"
-require "socket"
+module Auth
+  def Auth::login(user)
+    if user.nil?
+      user = AP.input("username")
+    end
 
-system("cls")
+    pwd = AP.input("password", true)
 
-headers = {
-  :AP=>"3.0",
-  :APS=>false,
-  :User_Agent=>"auth",
-  :Connection=>"keep-alive",
-  :Content=>{}
-}
+    $server ? nil : $server = AP.connect()
+    if $server.nil?
+      a = AP.input("Connettere automaticamente?")
+    end
 
-s = TCPSocket.new "localhost", 2556
+    if $server
+      $server.puts [user, pwd].to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts "\n" + response[:Content][:Response]
+      if response[:Code] == CODE_OK
+        $credentials = [user, response[:Content][:Power]]
+        return true
+      else
+        return false
+      end
+    else
+      return false
+    end
+  end
 
-sleep(2)
+  def Auth::logout()
+    if $server
+      $server.puts $headers.merge({:Connection=>"close", :Content=>{:Request=>"CLOSE"}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      $server = nil
+      $credentials = [nil, 0]
+      puts response[:Content][:Response]
+      if response[:Code] == CODE_OK
+        return true
+      else
+        return false
+      end
+    else
+      AP.output("Non sei connesso a nessun server")
+      return false
+    end
+  end
 
-# LOGIN TEST
-request = ["root", "ciaociao"].to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+  def Auth::adduser(user, pwd, pow)
+    if user.nil?
+      user = AP.input("username")
+    end
 
-# ADDUSER TEST
-request = headers.merge({:Content=>{:Request=>"ADDUSER", :Username=>"ImGek", :PWD=>"megadirettore", :Power=>2}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+    if pwd.nil?
+      pwd = AP.input("password")
+    end
 
-# ADDUSER TEST 2
-request = headers.merge({:Content=>{:Request=>"ADDUSER", :Username=>"utente1", :PWD=>"minchiasoft", :Power=>2}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      if pow.nil?
+        $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"ADDUSER", :Username=>user, :PWD=>pwd}}).to_json
+      else
+        $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"ADDUSER", :Username=>user, :PWD=>pwd, :Power=>pow}}).to_json
+      end
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts response[:Content][:Response]
+      return true
+    end
+  end
 
-# CHANGEPWD PW TEST
-request = headers.merge({:Content=>{:Request=>"CHANGEPWD", :Username=>"ImGek", :PWD=>"password1"}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+  def Auth::deluser(user, pwd)
+    if user.nil?
+      user = AP.input("username")
+    end
 
-# CHANGEPWD OLD TEST
-request = headers.merge({:Content=>{:Request=>"CHANGEPWD", :Username=>"ImGek", :PWD=>"password2", :oldPWD=>"password1"}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"DELUSER", :Username=>user, :PWD=>pwd}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts response[:Content][:Response]
+      return true
+    end
+  end
 
-# DELUSER PW TEST
-request = headers.merge({:Content=>{:Request=>"DELUSER", :Username=>"ImGek"}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+  def Auth::changepwd(user, newpwd, pwd)
+    if user.nil?
+      user = AP.input("username")
+    end
 
-# DELUSER OLD TEST
-request = headers.merge({:Content=>{:Request=>"DELUSER", :Username=>"utente1", :PWD=>"minchiasoft"}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-sleep(2)
+    pwd = AP.input("vecchia password", true)
+    newpwd = AP.input("nuova password", true)
 
-
-
-# HELLOWORLD
-request = headers.merge({:User_Agent=>"HelloWorld", :Connection=>"close", :Content=>{:Request=>"HelloWorld"}}).to_json
-puts ">>> " + request
-s.puts request
-puts "<<< " + JSON.parse(s.gets).to_json
-puts
-
-s.close
+    if $server.nil?
+      puts "Devi essere connesso per lanciare questo comando"
+      return false
+    else
+      $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts response[:Content][:Response]
+      return true
+    end
+  end
+end
