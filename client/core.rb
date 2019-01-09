@@ -3,7 +3,7 @@ require "io/console"
 module AP
   def AP::connect()
     begin
-      return TCPSocket.new HOST, PORT
+      return TCPSocket.new $host, $port
     rescue
       AP.output("Connessione al server fallita")
       return nil
@@ -26,7 +26,7 @@ module AP
     #system("cls")
     system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
-      print "#{$credentials[0] ? $credentials[0] : "nil"}@#{HOST}[#{$credentials[1]}] > "
+      print "#{$credentials[0] ? $credentials[0] : "nil"}@#{$host}[#{$credentials[1]}] > "
     else
       print "#{text} > "
     end
@@ -90,6 +90,24 @@ module AP
         end
       end
       puts
+    end
+  end
+
+  def AP::changehost(newhost)
+    if newhost != ""
+      $server ? Auth.logout() : nil
+      $host = newhost
+    else
+      puts "Hostname non valido"
+    end
+  end
+
+  def AP::changeport(newport)
+    if newport != "" && newport.to_i != 0
+      $server ? Auth.logout() : nil
+      $port = newport.to_i
+    else
+      puts "Hostname non valido"
     end
   end
 end

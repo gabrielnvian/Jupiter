@@ -7,10 +7,10 @@ require_relative "core.rb"
 require_relative "auth.rb"
 require_relative "filebase.rb"
 
-HOST = "localhost"
-#HOST = "192.168.1.130"
-#HOST = "138.201.65.198"
-PORT = 2556
+$host = "localhost"
+# $host = "192.168.1.130"
+# $host = "138.201.65.198"
+$port = 2556
 
 $credentials = [nil, 0]
 $server = nil#AP.connect()
@@ -24,6 +24,10 @@ begin
       # CONNECTION ---------------------------------------------------------------
       when "connect"
         $server = AP.connect()
+      when "host"
+        AP.changehost(cmd.split(" ")[1])
+      when "port"
+        AP.changeport(cmd.split(" ")[1])
       when "exit"
         if $server
           puts "\nDisconnessione automatica..."

@@ -7,9 +7,6 @@ module Auth
     pwd = AP.input("password", true)
 
     $server ? nil : $server = AP.connect()
-    if $server.nil?
-      a = AP.input("Connettere automaticamente?")
-    end
 
     if $server
       $server.puts [user, pwd].to_json
