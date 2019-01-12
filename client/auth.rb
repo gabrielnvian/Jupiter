@@ -1,5 +1,8 @@
 module Auth
   def Auth::login(user)
+    # If user is already logged in:
+      # If the user is trying to log in with the same account, stop
+      # If the user wants to change account logout and relogin
     if user.nil?
       user = AP.input("username")
     end
