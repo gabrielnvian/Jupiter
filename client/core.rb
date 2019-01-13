@@ -113,7 +113,7 @@ module AP
 end
 
 $headers = {
-  :AP=>"3.1",
+  :AP=>"3.2",
   :APS=>false,
   :User_Agent=>"HelloWorld",
   :Connection=>"keep-alive",
