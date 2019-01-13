@@ -10,7 +10,7 @@ class Fulfillment
         :date=>request[:Content][:Date],
         :keywords=>request[:Content][:Keywords],
         :owner=>request[:Content][:Owner] ? request[:Content][:Owner] : userinfo[0],
-        :minPW=>request[:Content][:minPW] ? request[:Content][:minPW] : userinfo[1]
+        :minPW=>request[:Content][:minPW] ? request[:Content][:minPW].to_i : userinfo[1]
       }
       return {:Content=>{:Response=>"Registrazione eseguita con successo", :Ticket=>ticket}}, true
     when "SUBMIT"
@@ -31,6 +31,18 @@ class Fulfillment
         return {:Content=>{:Response=>"File aggiunto al database"}}, true
       else
         return {:Code=>"400 Bad Request", :Content=>{:Response=>"Prima di completare la registrazione e' necessario inviare i dati"}}, true
+      end
+    when "CANCEL"
+      ticket = request[:Content][:Ticket]
+      if $filebase_tickets[ticket] != nil
+        newhash = {}
+        for key in $filebase_tickets.keys
+          key != ticket ? newhash[key] = $filebase_tickets[key] : nil
+        end
+        $filebase_tickets = newhash
+        return {:Content=>{:Response=>"Caricamento annullato"}}, true
+      else
+        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Il ticket di caricamento non esiste"}}, true
       end
     end
   end

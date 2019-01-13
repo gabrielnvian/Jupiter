@@ -1,28 +1,33 @@
 module Auth
   def Auth::login(user)
-    # If user is already logged in:
-      # If the user is trying to log in with the same account, stop
-      # If the user wants to change account logout and relogin
-    if user.nil?
-      user = AP.input("username")
-    end
+    if $credentials[0] != user
+      if !$credentials[0].nil?
+        Auth.logout()
+      end
 
-    pwd = AP.input("password", true)
+      if user.nil?
+        user = AP.input("username")
+      end
 
-    $server ? nil : $server = AP.connect()
+      pwd = AP.input("password", true)
 
-    if $server
-      $server.puts [user, pwd].to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
-      puts response[:Content][:Response]
-      if response[:Code] == CODE_OK
-        $credentials = [user, response[:Content][:Power]]
-        return true
+      $server ? nil : $server = AP.connect()
+
+      if $server
+        $server.puts [user, pwd].to_json
+        response = AP.jsontosym(JSON.parse($server.gets))
+        puts response[:Content][:Response]
+        if response[:Code] == CODE_OK
+          $credentials = [user, response[:Content][:Power]]
+          return true
+        else
+          return false
+        end
       else
         return false
       end
     else
-      return false
+      puts "Hai gia' eseguito il login con l'account \"#{user}\""
     end
   end
 
