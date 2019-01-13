@@ -12,6 +12,8 @@ require_relative "filebase.rb"
 $host = "138.201.65.198"
 $port = 2556
 
+$version = "3.2"
+
 $credentials = [nil, 0]
 $server = nil#AP.connect()
 
@@ -55,6 +57,8 @@ begin
         case cmd.split(" ")[1]
         when "addfile", "add"
           FileBase.addfile(cmd.split(" ")[2])
+        when "list"
+          FileBase.list()
         else
           AP.output("FileBase: comando non riconosciuto")
         end

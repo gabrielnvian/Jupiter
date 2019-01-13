@@ -58,13 +58,13 @@ AP.log("Lanciati #{ranTasks} script di avvio", nil, "server")
 
 AP.log("In attesa di connessioni...", nil, "server")
 $open_sessions = 0
-system("title AlphaProtocol Server (#{$open_sessions})")
+system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
 while true
   begin
     Thread.fork(server.accept) do |socket|
       begin
         $open_sessions += 1
-        system("title AlphaProtocol Server (#{$open_sessions})")
+        system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
         id = SecureRandom.hex(2)
         AP.log("Socket aperto", id, "socket")
         handler = AP::Handler.new(socket, id, agents)
@@ -76,7 +76,7 @@ while true
         @socket.puts(@headers.merge({:Code=>"500 Internal Server Error", :Content=>{:Response=>"Errore interno del server"}}).to_json)
       end
       $open_sessions -= 1
-      system("title AlphaProtocol Server (#{$open_sessions})")
+      system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
       AP.log("Socket chiuso", id, "socket")
     end
   rescue Interrupt

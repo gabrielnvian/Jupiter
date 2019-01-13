@@ -42,6 +42,10 @@ module FileBase
     end
   end
 
+  def FileBase::list()
+    return false
+  end
+
 
   def FileBase::uploadfile(path, ticket)
     puts "Caricamento file..."

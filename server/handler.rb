@@ -5,7 +5,7 @@ module AP
       @id = id
       @agents = agents
       @headers = {
-        :AP=>"3.2",
+        :AP=>$config["version"],
         :APS=>nil,
         :Code=>"200 OK",
         :Content=>{}

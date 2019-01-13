@@ -24,7 +24,7 @@ module AP
 
   def AP::input(text = nil, pwd = false)
     #system("cls")
-    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
+    system("title AP Client #{$version} - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
       print "#{$credentials[0] ? $credentials[0] : "nil"}@#{$host}[#{$credentials[1]}] > "
     else
@@ -49,7 +49,7 @@ module AP
   end
 
   def AP::output(text)
-    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
+    system("title AP Client #{$version} - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     puts text
   end
 
