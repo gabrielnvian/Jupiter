@@ -5,7 +5,7 @@ module AP
       @id = id
       @agents = agents
       @headers = {
-        :AP=>"3.0",
+        :AP=>"3.1",
         :APS=>nil,
         :Code=>"200 OK",
         :Content=>{}
@@ -49,6 +49,9 @@ module AP
               AP.log("Login fallito (#{input[0]})", @id)
               @socket.puts(@headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"Login fallito"}}).to_json)
             end
+          elsif input.kind_of?(Array) && !@userinfo[0].nil?
+            AP.log("Login gia' eseguito (#{@userinfo[0]})", @id)
+            @socket.puts(@headers.merge({:Code=>"400 Bad Request", :Content=>{:Response=>"Login gia' eseguito (#{@userinfo[0]})"}}).to_json)
           # END LOGIN BLOCK ------------------------------------------------------------
           else
             AP.log(tolog, @id, "rawin")

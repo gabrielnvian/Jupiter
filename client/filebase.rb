@@ -47,14 +47,21 @@ module FileBase
     puts "Caricamento file..."
     begin
       ftp = Net::FTP.new
-      ftp.connect(HOST, "12345")
+      ftp.connect($host, "12345")
       ftp.login("BAY", "bay")
       ftp.passive = true
       ftp.putbinaryfile(path, "#{ticket}#{File.extname(path)}")
       ftp.close
       return true
+    rescue Errno::ECONNREFUSED
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      puts "Impossibile contattare il server..."
+      return false
     rescue
-      puts "C'e' stato un errore durante il trasferimento del file."
+      puts "C'e' stato un errore durante il trasferimento del file..."
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
       return false
     end
   end

@@ -36,6 +36,8 @@ class Fulfillment
       when 1
         return {:Code=>"401 Unauthorized", :Content=>{:Response=>"L'utente ha un livello PW superiore del richiedente o la password non corrisponde"}}, true
       end
+    when "LIST"
+      return {:Content=>{:Response=>Auth.list(userinfo[1])}}, true
     end
   end
 end
