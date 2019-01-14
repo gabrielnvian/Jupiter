@@ -1,12 +1,28 @@
 require "io/console"
 
+$headers = {
+  :AP=>"3.2",
+  :APS=>false,
+  :User_Agent=>"HelloWorld",
+  :Connection=>"keep-alive",
+  :Content=>{}
+}
+
+CODE_OK = "200 OK"
+
+
 module AP
   def AP::connect()
     begin
       return TCPSocket.new $host, $port
     rescue
-      AP.output("Connessione al server fallita")
-      return nil
+      if AP.checkconn()
+        AP.output("Connessione al server fallita")
+        return nil
+      else
+        AP.output("Nessuna connessione a internet")
+        return nil
+      end
     end
   end
 
@@ -110,14 +126,14 @@ module AP
       puts "Hostname non valido"
     end
   end
+
+  def AP::checkconn()
+    begin
+      a = TCPSocket.new "google.com", 80
+      a.close
+      return true
+    rescue
+      return false
+    end
+  end
 end
-
-$headers = {
-  :AP=>"3.2",
-  :APS=>false,
-  :User_Agent=>"HelloWorld",
-  :Connection=>"keep-alive",
-  :Content=>{}
-}
-
-CODE_OK = "200 OK"
