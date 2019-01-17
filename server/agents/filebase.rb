@@ -20,6 +20,8 @@ class Fulfillment
         FileUtils.cp("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
         FileUtils.rm("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}")
         
+        data[:size] = File.size("#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
+
         FileBase.add($config[:DBpath], data)
 
         newhash = {}
@@ -44,6 +46,22 @@ class Fulfillment
       else
         return {:Code=>"400 Bad Request", :Content=>{:Response=>"Il ticket di caricamento non esiste"}}, true
       end
+    when "LIST"
+      user = userinfo[0]
+      power = userinfo[1]
+      reg = FileBase.load($config[:DBpath])
+      regtosend = []
+      
+      for item in reg
+        if power >= item[:minPW]
+          regtosend.push(item)
+        else
+          if user == item[:owner]
+            regtosend.push(item)
+          end
+        end
+      end
+      return {:Content=>{:Response=>regtosend}}, true
     end
   end
 end

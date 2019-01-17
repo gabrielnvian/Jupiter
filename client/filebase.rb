@@ -19,11 +19,6 @@ module FileBase
       owner = AP.input("owner")
       minPW = AP.input("minPW")
 
-      $server ? nil : $server = AP.connect()
-      if $server.nil?
-        a = AP.input("Connettere automaticamente?")
-      end
-
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"INIT", :Name=>fname, :Ext=>fext, :Date=>fdate,
         :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
@@ -43,7 +38,12 @@ module FileBase
   end
 
   def FileBase::list()
-    return false
+    if $server
+
+    else
+      AP.output("Non sei connesso a nessun server")
+      return false
+    end
   end
 
 
