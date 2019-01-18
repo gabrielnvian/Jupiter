@@ -54,10 +54,18 @@ class Fulfillment
       
       for item in reg
         if power >= item[:minPW]
-          regtosend.push(item)
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          regtosend.push(item2)
         else
           if user == item[:owner]
-            regtosend.push(item)
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            regtosend.push(item2)
           end
         end
       end

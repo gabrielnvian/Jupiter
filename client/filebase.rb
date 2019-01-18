@@ -39,7 +39,24 @@ module FileBase
 
   def FileBase::list()
     if $server
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"LIST"}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
 
+      if !response[:Content][:Response].empty?
+        files = []
+        for item in response[:Content][:Response]
+          files.push([
+            "#{item[:name].item[:ext]}", 
+            item[:date], 
+            item[:keywords].join(", ")[0..15], 
+            item[:owner]
+          ])
+        end
+
+        AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+      else
+        AP.output("Nessun file sul server")
+      end
     else
       AP.output("Non sei connesso a nessun server")
       return false
