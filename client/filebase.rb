@@ -63,6 +63,37 @@ module FileBase
     end
   end
 
+  def FileBase::query(type)
+    if type.nil?
+      type = AP.input("type")
+    end
+    query = AP.input("query")
+
+    if $server
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"QUERY", :Type=>type, :Query=>query}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+
+      if !response[:Content][:Response].empty?
+        files = []
+        for item in response[:Content][:Response]
+          files.push([
+            "#{item[:name].item[:ext]}", 
+            item[:date], 
+            item[:keywords].join(", ")[0..15], 
+            item[:owner]
+          ])
+        end
+
+        AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+      else
+        AP.output("Nessun file corrisponde alla query")
+      end
+    else
+      AP.output("Non sei connesso a nessun server")
+      return false
+    end
+  end
+
 
   def FileBase::uploadfile(path, ticket)
     puts "Caricamento file..."

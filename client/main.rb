@@ -59,6 +59,8 @@ begin
           FileBase.addfile(cmd.split(" ")[2])
         when "list"
           FileBase.list()
+        when "query", "search"
+          FileBase.query(cmd.split(" ")[2])
         else
           AP.output("FileBase: comando non riconosciuto")
         end
