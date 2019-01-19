@@ -12,7 +12,7 @@ require_relative "filebase.rb"
 $host = "138.201.65.198"
 $port = 2556
 
-$version = "3.2"
+$version = "3.3"
 
 $credentials = [nil, 0]
 $server = nil#AP.connect()

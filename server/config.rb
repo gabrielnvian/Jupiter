@@ -1,5 +1,5 @@
 $config = {
-  :version=>"3.2",
+  :version=>"3.3",
   :address=>"localhost",
   :port=>2556,
   :BayPath=>"C:/Users/#{ENV["username"]}/Desktop/BAY",
