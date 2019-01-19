@@ -9,7 +9,7 @@ require_relative "filebase.rb"
 
 # $host = "localhost"
 # $host = "192.168.1.130"
-$host = "138.201.65.198"
+$host = "gabrielvian.com"
 $port = 2556
 
 $version = "3.3"

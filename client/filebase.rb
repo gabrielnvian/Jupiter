@@ -42,11 +42,15 @@ module FileBase
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"LIST"}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
 
+      for i in 0...response[:Content][:Response].length
+        response[:Content][:Response][i] = AP.jsontosym(response[:Content][:Response][i])
+      end
+
       if !response[:Content][:Response].empty?
         files = []
         for item in response[:Content][:Response]
           files.push([
-            "#{item[:name].item[:ext]}", 
+            item[:name] + "." + item[:ext], 
             item[:date], 
             item[:keywords].join(", ")[0..15], 
             item[:owner]
@@ -73,11 +77,15 @@ module FileBase
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"QUERY", :Type=>type, :Query=>query}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
 
+      for i in 0...response[:Content][:Response].length
+        response[:Content][:Response][i] = AP.jsontosym(response[:Content][:Response][i])
+      end
+
       if !response[:Content][:Response].empty?
         files = []
         for item in response[:Content][:Response]
           files.push([
-            "#{item[:name].item[:ext]}", 
+            item[:name] + "." + item[:ext],
             item[:date], 
             item[:keywords].join(", ")[0..15], 
             item[:owner]
