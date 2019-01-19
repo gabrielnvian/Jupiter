@@ -1,15 +1,15 @@
 module Auth
   def Auth::login(user)
     if $credentials[0] != user
-      if !$credentials[0].nil?
-        Auth.logout()
-      end
-
       if user.nil?
         user = AP.input("username")
       end
 
       pwd = AP.input("password", true)
+
+      if !$credentials[0].nil?
+        Auth.logout()
+      end
 
       $server ? nil : $server = AP.connect()
 
@@ -35,6 +35,7 @@ module Auth
     if $server
       $server.puts $headers.merge({:Connection=>"close", :Content=>{:Request=>"CLOSE"}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
+      $server.close
       $server = nil
       $credentials = [nil, 0]
       puts response[:Content][:Response]

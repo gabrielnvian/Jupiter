@@ -4,7 +4,7 @@ class Fulfillment
     when "HELLOWORLD"
       return {:Content=>{:Response=>"Hello World! :D"}}, true
     when "CLOSE"
-      return {:Content=>{:Response=>"Logout eseguito"}}, true
+      return {:Content=>{:Response=>"Logout eseguito (#{userinfo[0]})"}}, true
     end
   end
 end

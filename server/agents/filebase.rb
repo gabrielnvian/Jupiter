@@ -83,7 +83,7 @@ class Fulfillment
       when "name"
         for item in db
           if power >= item[:minPW]
-            if item[:name].include?(query)
+            if item[:name].downcase().include?(query.downcase())
               item2 = {}
               for key in [:name, :ext, :date, :keywords, :owner]
                 item2[key] = item[key]
@@ -92,7 +92,7 @@ class Fulfillment
             end
           else
             if user == item[:owner]
-              if item[:name].include?(query)
+              if item[:name].downcase().include?(query.downcase())
                 item2 = {}
                 for key in [:name, :ext, :date, :keywords, :owner]
                   item2[key] = item[key]
