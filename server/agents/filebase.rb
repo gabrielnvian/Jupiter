@@ -20,6 +20,8 @@ class Fulfillment
         FileUtils.cp("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
         FileUtils.rm("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}")
         
+        data[:size] = File.size("#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
+
         FileBase.add($config[:DBpath], data)
 
         newhash = {}
@@ -40,10 +42,95 @@ class Fulfillment
           key != ticket ? newhash[key] = $filebase_tickets[key] : nil
         end
         $filebase_tickets = newhash
-        return {:Content=>{:Response=>"Caricamento annullato"}}, true
+        return {:Content=>{:Response=>"Registrazione annullato"}}, true
       else
         return {:Code=>"400 Bad Request", :Content=>{:Response=>"Il ticket di caricamento non esiste"}}, true
       end
+    when "LIST"
+      user = userinfo[0]
+      power = userinfo[1]
+      reg = FileBase.load($config[:DBpath])
+      regtosend = []
+      
+      for item in reg
+        if power >= item[:minPW]
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          regtosend.push(item2)
+        else
+          if user == item[:owner]
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            regtosend.push(item2)
+          end
+        end
+      end
+      return {:Content=>{:Response=>regtosend}}, true
+    when "QUERY"
+      user = userinfo[0]
+      power = userinfo[1]
+      type = request[:Content][:Type]
+      query = request[:Content][:Query]
+
+      
+      db = FileBase.load($config[:DBpath])
+      result = []
+      case type
+      when "name"
+        for item in db
+          if power >= item[:minPW]
+            if item[:name].include?(query)
+              item2 = {}
+              for key in [:name, :ext, :date, :keywords, :owner]
+                item2[key] = item[key]
+              end
+              result.push(item2)
+            end
+          else
+            if user == item[:owner]
+              if item[:name].include?(query)
+                item2 = {}
+                for key in [:name, :ext, :date, :keywords, :owner]
+                  item2[key] = item[key]
+                end
+                result.push(item2)
+              end
+            end
+          end
+        end
+      when "keywords"
+        for item in db
+          if power >= item[:minPW]
+            if item[:keywords].include?(query)
+              item2 = {}
+              for key in [:name, :ext, :date, :keywords, :owner]
+                item2[key] = item[key]
+              end
+              result.push(item2)
+            end
+          else
+            if user == item[:owner]
+              if item[:keywords].include?(query)
+                item2 = {}
+                for key in [:name, :ext, :date, :keywords, :owner]
+                  item2[key] = item[key]
+                end
+                result.push(item2)
+              end
+            end
+          end
+        end
+      else
+        return false
+      end
+      return {:Content=>{:Response=>result}}, true
+
+
+      return {:Content=>{:Response=>result}}, true
     end
   end
 end
@@ -115,6 +202,7 @@ module FileBase
     end
     return list
   end
+
 
   def FileBase::snapshot(path)
   end

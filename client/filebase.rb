@@ -19,11 +19,6 @@ module FileBase
       owner = AP.input("owner")
       minPW = AP.input("minPW")
 
-      $server ? nil : $server = AP.connect()
-      if $server.nil?
-        a = AP.input("Connettere automaticamente?")
-      end
-
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"INIT", :Name=>fname, :Ext=>fext, :Date=>fdate,
         :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
@@ -35,6 +30,63 @@ module FileBase
           response = AP.jsontosym(JSON.parse($server.gets))
           puts response[:Content][:Response]
         end
+      end
+    else
+      AP.output("Non sei connesso a nessun server")
+      return false
+    end
+  end
+
+  def FileBase::list()
+    if $server
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"LIST"}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+
+      if !response[:Content][:Response].empty?
+        files = []
+        for item in response[:Content][:Response]
+          files.push([
+            "#{item[:name].item[:ext]}", 
+            item[:date], 
+            item[:keywords].join(", ")[0..15], 
+            item[:owner]
+          ])
+        end
+
+        AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+      else
+        AP.output("Nessun file sul server")
+      end
+    else
+      AP.output("Non sei connesso a nessun server")
+      return false
+    end
+  end
+
+  def FileBase::query(type)
+    if type.nil?
+      type = AP.input("type")
+    end
+    query = AP.input("query")
+
+    if $server
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"QUERY", :Type=>type, :Query=>query}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+
+      if !response[:Content][:Response].empty?
+        files = []
+        for item in response[:Content][:Response]
+          files.push([
+            "#{item[:name].item[:ext]}", 
+            item[:date], 
+            item[:keywords].join(", ")[0..15], 
+            item[:owner]
+          ])
+        end
+
+        AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+      else
+        AP.output("Nessun file corrisponde alla query")
       end
     else
       AP.output("Non sei connesso a nessun server")

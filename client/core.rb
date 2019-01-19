@@ -1,12 +1,28 @@
 require "io/console"
 
+$headers = {
+  :AP=>"3.2",
+  :APS=>false,
+  :User_Agent=>"HelloWorld",
+  :Connection=>"keep-alive",
+  :Content=>{}
+}
+
+CODE_OK = "200 OK"
+
+
 module AP
   def AP::connect()
     begin
       return TCPSocket.new $host, $port
     rescue
-      AP.output("Connessione al server fallita")
-      return nil
+      if AP.checkconn()
+        AP.output("Connessione al server fallita")
+        return nil
+      else
+        AP.output("Nessuna connessione a internet")
+        return nil
+      end
     end
   end
 
@@ -24,7 +40,7 @@ module AP
 
   def AP::input(text = nil, pwd = false)
     #system("cls")
-    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
+    system("title AP Client #{$version} - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
       print "#{$credentials[0] ? $credentials[0] : "nil"}@#{$host}[#{$credentials[1]}] > "
     else
@@ -49,7 +65,7 @@ module AP
   end
 
   def AP::output(text)
-    system("title AP Client - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
+    system("title AP Client #{$version} - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     puts text
   end
 
@@ -110,14 +126,14 @@ module AP
       puts "Hostname non valido"
     end
   end
+
+  def AP::checkconn()
+    begin
+      a = TCPSocket.new "google.com", 80
+      a.close
+      return true
+    rescue
+      return false
+    end
+  end
 end
-
-$headers = {
-  :AP=>"3.2",
-  :APS=>false,
-  :User_Agent=>"HelloWorld",
-  :Connection=>"keep-alive",
-  :Content=>{}
-}
-
-CODE_OK = "200 OK"
