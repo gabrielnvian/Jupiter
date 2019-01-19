@@ -17,10 +17,10 @@ module AP
       return TCPSocket.new $host, $port
     rescue
       if AP.checkconn()
-        AP.output("Connessione al server fallita")
+        AP.output(COLOR::RED+"Connessione al server fallita"+COLOR::CLEAR)
         return nil
       else
-        AP.output("Nessuna connessione a internet")
+        AP.output(COLOR::RED+"Nessuna connessione a internet"+COLOR::CLEAR)
         return nil
       end
     end
@@ -42,7 +42,7 @@ module AP
     #system("cls")
     system("title AP Client #{$version} - #{$server ? "Connesso" : "Non connesso"} - #{$credentials[0] ? $credentials[0]+"[#{$credentials[1]}]" : "Login non eseguito"}")
     if text.nil?
-      print "#{$credentials[0] ? $credentials[0] : "nil"}@#{$host}[#{$credentials[1]}] > "
+      print "#{$credentials[0] ? $credentials[0] : "#{COLOR::RED}nil"}#{COLOR::CLEAR}@#{$server ? $host : COLOR::RED + $host}[#{$credentials[1]}] > #{COLOR::CLEAR}"
     else
       print "#{text} > "
     end
@@ -70,6 +70,7 @@ module AP
   end
 
   def AP::table(input, sep = "|", header = true)
+    puts
     longest = []
     for i in 0...input[0].length
       longest[i] = 0
@@ -107,23 +108,25 @@ module AP
       end
       puts
     end
+    puts
+    puts
   end
 
   def AP::changehost(newhost)
-    if newhost != ""
+    if newhost == "" || newhost.nil?
+      puts "#{COLOR::RED}Hostname non valido#{COLOR::CLEAR}"
+    else
       $server ? Auth.logout() : nil
       $host = newhost
-    else
-      puts "Hostname non valido"
     end
   end
 
   def AP::changeport(newport)
-    if newport != "" && newport.to_i != 0
+    if newport == "" || newport.to_i == 0 || newport.nil?
+      puts "#{COLOR::RED}Porta non valida#{COLOR::CLEAR}"
+    else
       $server ? Auth.logout() : nil
       $port = newport.to_i
-    else
-      puts "Hostname non valido"
     end
   end
 
@@ -136,4 +139,17 @@ module AP
       return false
     end
   end
+end
+
+
+module COLOR
+  COLOR::CLEAR = "[0m"
+
+  COLOR::GREEN = "[92m"
+  COLOR::YELLOW = "[93m"
+  COLOR::CYAN = "[96m"
+  COLOR::BLUE = "[94m"
+  COLOR::RED = "[91m"
+
+  COLOR::BOLD = "[1m"
 end

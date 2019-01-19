@@ -16,18 +16,19 @@ module Auth
       if $server
         $server.puts [user, pwd].to_json
         response = AP.jsontosym(JSON.parse($server.gets))
-        puts response[:Content][:Response]
         if response[:Code] == CODE_OK
+          puts COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR
           $credentials = [user, response[:Content][:Power]]
           return true
         else
+          puts COLOR::RED + response[:Content][:Response] + COLOR::CLEAR
           return false
         end
       else
         return false
       end
     else
-      puts "Hai gia' eseguito il login con l'account \"#{user}\""
+      puts "#{COLOR::RED}Hai gia' eseguito il login con l'account \"#{user}\"#{COLOR::CLEAR}"
     end
   end
 
@@ -38,14 +39,15 @@ module Auth
       $server.close
       $server = nil
       $credentials = [nil, 0]
-      puts response[:Content][:Response]
       if response[:Code] == CODE_OK
+        puts COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR
         return true
       else
+        puts COLOR::RED + response[:Content][:Response] + COLOR::CLEAR
         return false
       end
     else
-      AP.output("Non sei connesso a nessun server")
+      AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
       return false
     end
   end
@@ -64,7 +66,7 @@ module Auth
     end
 
     if $server.nil?
-      puts "Devi essere connesso per lanciare questo comando"
+      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
       return false
     else
       if pow.nil?
@@ -73,7 +75,11 @@ module Auth
         $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"ADDUSER", :Username=>user, :PWD=>pwd, :Power=>pow}}).to_json
       end
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts response[:Content][:Response]
+      if response[:Code] == CODE_OK
+        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+      else
+        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+      end
       return true
     end
   end
@@ -84,12 +90,16 @@ module Auth
     end
 
     if $server.nil?
-      puts "Devi essere connesso per lanciare questo comando"
+      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"DELUSER", :Username=>user, :PWD=>pwd}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts response[:Content][:Response]
+      if response[:Code] == CODE_OK
+        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+      else
+        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+      end
       return true
     end
   end
@@ -103,19 +113,23 @@ module Auth
     newpwd = AP.input("nuova password", true)
 
     if $server.nil?
-      puts "Devi essere connesso per lanciare questo comando"
+      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts response[:Content][:Response]
+      if response[:Code] == CODE_OK
+        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+      else
+        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+      end
       return true
     end
   end
 
   def Auth::list()
     if $server.nil?
-      puts "Devi essere connesso per lanciare questo comando"
+      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"LIST"}}).to_json
@@ -123,7 +137,7 @@ module Auth
       if response[:Code] == CODE_OK
         AP.table(response[:Content][:Response].unshift(["Username", "Livello PW"]))
       else
-        puts response[:Content][:Response]
+        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
       end 
       return true
     end
