@@ -19,7 +19,7 @@ module FileBase
       owner = AP.input("owner")
       minPW = AP.input("minPW")
 
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"INIT", :Name=>fname, :Ext=>fext, :Date=>fdate,
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"UPLOAD", :Name=>fname, :Ext=>fext, :Date=>fdate,
         :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
@@ -28,7 +28,7 @@ module FileBase
         if FileBase.uploadfile(path, ticket)
           $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"SUBMIT", :Ticket=>ticket}}).to_json
           response = AP.jsontosym(JSON.parse($server.gets))
-          AP.output(response[:Content][:Response])
+          AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
         end
       elsif response[:Code] == CODE_ERROR
         AP.reset()
@@ -56,6 +56,7 @@ module FileBase
           files = []
           for item in response[:Content][:Response]
             files.push([
+              item[:uid],
               item[:name][0..40] + "." + item[:ext], 
               Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
               item[:keywords].join(", ")[0..35], 
@@ -63,7 +64,7 @@ module FileBase
             ])
           end
 
-          AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
         else
           AP.output(COLOR::YELLOW+"Nessun file da elencare"+COLOR::CLEAR)
         end
@@ -99,6 +100,7 @@ module FileBase
           files = []
           for item in response[:Content][:Response]
             files.push([
+              item[:uid],
               item[:name][0..40] + "." + item[:ext], 
               Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
               item[:keywords].join(", ")[0..35], 
@@ -106,7 +108,7 @@ module FileBase
             ])
           end
 
-          AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
         else
           AP.output(COLOR::YELLOW+"Nessun file corrisponde alla query"+COLOR::CLEAR)
         end
@@ -124,11 +126,11 @@ module FileBase
 
 
   def FileBase::uploadfile(path, ticket)
-    puts "Caricamento file..."
+    AP.output(COLOR::YELLOW+"Caricamento file..."+COLOR::CLEAR)
     begin
       ftp = Net::FTP.new
       ftp.connect($host, "12345")
-      ftp.login("BAY", "bay")
+      ftp.login("BAYUP", "bayup")
       ftp.passive = true
       ftp.putbinaryfile(path, "#{ticket}#{File.extname(path)}")
       ftp.close
