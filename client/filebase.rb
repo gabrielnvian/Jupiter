@@ -78,7 +78,6 @@ module FileBase
       type = AP.input("type")
     end
     query = AP.input("query")
-    puts query[0]
     query[0] == "-" ? query = eval(query[1..-1]) : nil
 
     if $server
