@@ -73,7 +73,7 @@ module Auth
     end
 
     if $server.nil?
-      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Devi essere connesso per lanciare questo comando"+COLOR::CLEAR)
       return false
     else
       if pow.nil?
@@ -100,7 +100,7 @@ module Auth
     end
 
     if $server.nil?
-      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Devi essere connesso per lanciare questo comando"+COLOR::CLEAR)
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"DELUSER", :Username=>user, :PWD=>pwd}}).to_json
@@ -126,7 +126,7 @@ module Auth
     newpwd = AP.input("nuova password", true)
 
     if $server.nil?
-      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Devi essere connesso per lanciare questo comando"+COLOR::CLEAR)
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
@@ -145,7 +145,7 @@ module Auth
 
   def Auth::list()
     if $server.nil?
-      puts "#{COLOR::RED}Devi essere connesso per lanciare questo comando#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Devi essere connesso per lanciare questo comando"+COLOR::CLEAR)
       return false
     else
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"LIST"}}).to_json
@@ -156,7 +156,7 @@ module Auth
         AP.reset()
         AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end 
       return true
     end

@@ -32,7 +32,7 @@ begin
         AP.changeport(cmd.split(" ")[1])
       when "exit"
         if $server
-          puts "#{COLOR::YELLOW}\nDisconnessione automatica...#{COLOR::CLEAR}"
+          AP.output(COLOR::YELLOW+"\nDisconnessione automatica..."+COLOR::CLEAR)
           Auth.logout()
         end
 
@@ -77,12 +77,12 @@ begin
         AP.output(COLOR::RED+"Comando non riconosciuto"+COLOR::CLEAR)
       end
     rescue Interrupt
-      puts "#{COLOR::GREEN}\nComando annullato#{COLOR::CLEAR}"
+      AP.output(COLOR::GREEN+"\nComando annullato"+COLOR::CLEAR)
     end
   end
 rescue Interrupt
   if $server
-    puts "#{COLOR::YELLOW}\nDisconnessione automatica...#{COLOR::CLEAR}"
+    AP.output(COLOR::YELLOW+"\nDisconnessione automatica..."+COLOR::CLEAR)
     Auth.logout()
   end
 end
