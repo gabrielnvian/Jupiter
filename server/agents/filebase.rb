@@ -1,10 +1,10 @@
 class Fulfillment
   def filebase(request, userinfo)
     case request[:Content][:Request]
-    when "INIT"
+    when "UPLOAD"
       ticket = AP.getsafeid($filebase_tickets.keys)
       $filebase_tickets[ticket] = {
-        :code=>AP.getsafeid(FileBase.list($config[:DBpath]), 20),
+        :uid=>AP.getsafeid(FileBase.list($config[:DBpath]), 6),
         :name=>request[:Content][:Name],
         :ext=>request[:Content][:Ext],
         :date=>request[:Content][:Date],
@@ -17,10 +17,10 @@ class Fulfillment
       ticket = request[:Content][:Ticket]
       if $filebase_tickets[ticket] != nil
         data = $filebase_tickets[ticket]
-        FileUtils.cp("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
-        FileUtils.rm("#{$config[:BayPath]}/#{ticket}.#{data[:ext]}")
-        
-        data[:size] = File.size("#{$config[:DBpath]}/#{data[:code]}.#{data[:ext]}")
+        FileUtils.cp("#{$config[:BayUPPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
+        FileUtils.rm("#{$config[:BayUPPath]}/#{ticket}.#{data[:ext]}")
+          
+        data[:size] = File.size("#{$config[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
 
         FileBase.add($config[:DBpath], data)
 
@@ -55,14 +55,14 @@ class Fulfillment
       for item in reg
         if power >= item[:minPW]
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           regtosend.push(item2)
         else
           if user == item[:owner]
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             regtosend.push(item2)
@@ -88,7 +88,7 @@ class Fulfillment
       when "after"
         result = FileBase::QueryAfter(query, user, power)
       else
-        return false
+        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Opzione query invalida"}}, true
       end
       return {:Content=>{:Response=>result}}, true
     end
@@ -146,6 +146,14 @@ module FileBase
     end
   end
 
+  def FileBase::get(path, uid)
+    db = FileBase.load(path)
+    for entry in db
+      return entry if entry[:uid] == uid
+    end
+    return false
+  end
+
   def FileBase::check(path) # Deletes non existing files
     db = FileBase.load(path)
     db.each_with_index do |entry, i|
@@ -158,7 +166,7 @@ module FileBase
   def FileBase::list(path)
     list = []
     for entry in FileBase.load(path)
-      list.push(entry[:code])
+      list.push(entry[:uid])
     end
     return list
   end
@@ -170,7 +178,7 @@ module FileBase
       if power >= item[:minPW]
         if item[:name].downcase().include?(query.downcase())
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           result.push(item2)
@@ -179,7 +187,7 @@ module FileBase
         if user == item[:owner]
           if item[:name].downcase().include?(query.downcase())
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             result.push(item2)
@@ -197,7 +205,7 @@ module FileBase
       if power >= item[:minPW]
         if item[:keywords].include?(query)
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           result.push(item2)
@@ -206,7 +214,7 @@ module FileBase
         if user == item[:owner]
           if item[:keywords].include?(query)
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             result.push(item2)
@@ -225,7 +233,7 @@ module FileBase
       if power >= item[:minPW]
         if item[:owner] == query
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           result.push(item2)
@@ -234,7 +242,7 @@ module FileBase
         if user == item[:owner]
           if item[:owner] == query
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             result.push(item2)
@@ -253,7 +261,7 @@ module FileBase
       if power >= item[:minPW]
         if item[:date] < query.to_i
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           result.push(item2)
@@ -262,7 +270,7 @@ module FileBase
         if user == item[:owner]
           if item[:date] < query.to_i
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             result.push(item2)
@@ -281,7 +289,7 @@ module FileBase
       if power >= item[:minPW]
         if item[:date] > query.to_i
           item2 = {}
-          for key in [:name, :ext, :date, :keywords, :owner]
+          for key in [:uid, :name, :ext, :date, :keywords, :owner]
             item2[key] = item[key]
           end
           result.push(item2)
@@ -290,7 +298,7 @@ module FileBase
         if user == item[:owner]
           if item[:date] > query.to_i
             item2 = {}
-            for key in [:name, :ext, :date, :keywords, :owner]
+            for key in [:uid, :name, :ext, :date, :keywords, :owner]
               item2[key] = item[key]
             end
             result.push(item2)
@@ -299,9 +307,5 @@ module FileBase
       end
     end
     return result
-  end
-
-
-  def FileBase::snapshot(path)
   end
 end

@@ -19,19 +19,22 @@ module FileBase
       owner = AP.input("owner")
       minPW = AP.input("minPW")
 
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"INIT", :Name=>fname, :Ext=>fext, :Date=>fdate,
+      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"UPLOAD", :Name=>fname, :Ext=>fext, :Date=>fdate,
         :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
         ticket = response[:Content][:Ticket]
         if FileBase.uploadfile(path, ticket)
           $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"SUBMIT", :Ticket=>ticket}}).to_json
           response = AP.jsontosym(JSON.parse($server.gets))
-          puts response[:Content][:Response]
+          AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
         end
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
     else
       AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
@@ -53,6 +56,7 @@ module FileBase
           files = []
           for item in response[:Content][:Response]
             files.push([
+              item[:uid],
               item[:name][0..40] + "." + item[:ext], 
               Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
               item[:keywords].join(", ")[0..35], 
@@ -60,12 +64,15 @@ module FileBase
             ])
           end
 
-          AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
         else
           AP.output(COLOR::YELLOW+"Nessun file da elencare"+COLOR::CLEAR)
         end
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
     else
       AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
@@ -78,7 +85,7 @@ module FileBase
       type = AP.input("type")
     end
     query = AP.input("query")
-    query[0] == "-" ? query = eval(query[1..-1]) : nil
+    query.to_s[0] == "-" ? query = eval(query.to_s[1..-1]) : nil
 
     if $server
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"QUERY", :Type=>type, :Query=>query}}).to_json
@@ -93,6 +100,7 @@ module FileBase
           files = []
           for item in response[:Content][:Response]
             files.push([
+              item[:uid],
               item[:name][0..40] + "." + item[:ext], 
               Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
               item[:keywords].join(", ")[0..35], 
@@ -100,12 +108,15 @@ module FileBase
             ])
           end
 
-          AP.table(files.unshift(["Nome", "Data", "Parole Chiave", "Proprietario"]))
+          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
         else
           AP.output(COLOR::YELLOW+"Nessun file corrisponde alla query"+COLOR::CLEAR)
         end
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
     else
       AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
@@ -115,11 +126,11 @@ module FileBase
 
 
   def FileBase::uploadfile(path, ticket)
-    puts "Caricamento file..."
+    AP.output(COLOR::YELLOW+"Caricamento file..."+COLOR::CLEAR)
     begin
       ftp = Net::FTP.new
       ftp.connect($host, "12345")
-      ftp.login("BAY", "bay")
+      ftp.login("BAYUP", "bayup")
       ftp.passive = true
       ftp.putbinaryfile(path, "#{ticket}#{File.extname(path)}")
       ftp.close
@@ -127,10 +138,10 @@ module FileBase
     rescue Errno::ECONNREFUSED
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
-      puts "#{COLOR::RED}Impossibile contattare il server...#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Impossibile contattare il server..."+COLOR::CLEAR)
       return false
     rescue
-      puts "#{COLOR::RED}C'e' stato un errore durante il trasferimento del file...#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"C'e' stato un errore durante il trasferimento del file..."+COLOR::CLEAR)
       $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       return false
