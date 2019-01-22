@@ -88,7 +88,7 @@ class Fulfillment
       when "after"
         result = FileBase::QueryAfter(query, user, power)
       else
-        return false
+        return {:Code=>"400 Bad Request", :Content=>{:Response=>"Opzione query invalida"}}, true
       end
       return {:Content=>{:Response=>result}}, true
     end

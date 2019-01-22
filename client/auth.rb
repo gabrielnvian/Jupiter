@@ -17,18 +17,22 @@ module Auth
         $server.puts [user, pwd].to_json
         response = AP.jsontosym(JSON.parse($server.gets))
         if response[:Code] == CODE_OK
-          puts COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR
+          AP.output(COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR)
           $credentials = [user, response[:Content][:Power]]
           return true
+        elsif response[:Code] == CODE_ERROR
+          AP.reset()
+          AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+          return false
         else
-          puts COLOR::RED + response[:Content][:Response] + COLOR::CLEAR
+          AP.output(COLOR::RED + response[:Content][:Response] + COLOR::CLEAR)
           return false
         end
       else
         return false
       end
     else
-      puts "#{COLOR::RED}Hai gia' eseguito il login con l'account \"#{user}\"#{COLOR::CLEAR}"
+      AP.output(COLOR::RED+"Hai gia' eseguito il login con l'account \"#{user}\""+COLOR::CLEAR)
     end
   end
 
@@ -37,13 +41,16 @@ module Auth
       $server.puts $headers.merge({:Connection=>"close", :Content=>{:Request=>"CLOSE"}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       $server.close
-      $server = nil
-      $credentials = [nil, 0]
+      AP.reset()
       if response[:Code] == CODE_OK
-        puts COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR
+        AP.output(COLOR::GREEN + response[:Content][:Response] + COLOR::CLEAR)
         return true
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        return false
       else
-        puts COLOR::RED + response[:Content][:Response] + COLOR::CLEAR
+        AP.output(COLOR::RED + response[:Content][:Response] + COLOR::CLEAR)
         return false
       end
     else
@@ -76,9 +83,12 @@ module Auth
       end
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
       return true
     end
@@ -96,9 +106,12 @@ module Auth
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"DELUSER", :Username=>user, :PWD=>pwd}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
       return true
     end
@@ -119,9 +132,12 @@ module Auth
       $server.puts $headers.merge({:User_Agent=>"auth", :Content=>{:Request=>"CHANGEPWD", :Username=>user, :PWD=>newpwd, :oldPWD=>pwd}}).to_json
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        puts COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
-        puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       end
       return true
     end
@@ -136,6 +152,9 @@ module Auth
       response = AP.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
         AP.table(response[:Content][:Response].unshift(["Username", "Livello PW"]))
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
       else
         puts COLOR::RED+response[:Content][:Response]+COLOR::CLEAR
       end 

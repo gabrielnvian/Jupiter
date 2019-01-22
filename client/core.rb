@@ -9,6 +9,7 @@ $headers = {
 }
 
 CODE_OK = "200 OK"
+CODE_ERROR = "500 Internal Server Error"
 
 
 module AP
@@ -138,6 +139,12 @@ module AP
     rescue
       return false
     end
+  end
+
+  def AP::reset()
+    $server = nil
+    $credentials = [nil, 0]
+    #AP.output(COLOR::YELLOW+"Il server non ha risposto alla richiesta, pertanto la connessione e' stata chiusa"+COLOR::CLEAR)
   end
 end
 
