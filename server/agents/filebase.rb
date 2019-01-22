@@ -76,60 +76,20 @@ class Fulfillment
       type = request[:Content][:Type]
       query = request[:Content][:Query]
 
-      
-      db = FileBase.load($config[:DBpath])
-      result = []
       case type
       when "name"
-        for item in db
-          if power >= item[:minPW]
-            if item[:name].include?(query)
-              item2 = {}
-              for key in [:name, :ext, :date, :keywords, :owner]
-                item2[key] = item[key]
-              end
-              result.push(item2)
-            end
-          else
-            if user == item[:owner]
-              if item[:name].include?(query)
-                item2 = {}
-                for key in [:name, :ext, :date, :keywords, :owner]
-                  item2[key] = item[key]
-                end
-                result.push(item2)
-              end
-            end
-          end
-        end
+        result = FileBase::QueryName(query, user, power)
       when "keywords"
-        for item in db
-          if power >= item[:minPW]
-            if item[:keywords].include?(query)
-              item2 = {}
-              for key in [:name, :ext, :date, :keywords, :owner]
-                item2[key] = item[key]
-              end
-              result.push(item2)
-            end
-          else
-            if user == item[:owner]
-              if item[:keywords].include?(query)
-                item2 = {}
-                for key in [:name, :ext, :date, :keywords, :owner]
-                  item2[key] = item[key]
-                end
-                result.push(item2)
-              end
-            end
-          end
-        end
+        result = FileBase::QueryKeywords(query, user, power)
+      when "owner"
+        result = FileBase::QueryOwner(query, user, power)
+      when "before"
+        result = FileBase::QueryBefore(query, user, power)
+      when "after"
+        result = FileBase::QueryAfter(query, user, power)
       else
         return false
       end
-      return {:Content=>{:Response=>result}}, true
-
-
       return {:Content=>{:Response=>result}}, true
     end
   end
@@ -201,6 +161,144 @@ module FileBase
       list.push(entry[:code])
     end
     return list
+  end
+
+  def FileBase::QueryName(query, user, power)
+    db = FileBase.load($config[:DBpath])
+    result = []
+    for item in db
+      if power >= item[:minPW]
+        if item[:name].downcase().include?(query.downcase())
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          result.push(item2)
+        end
+      else
+        if user == item[:owner]
+          if item[:name].downcase().include?(query.downcase())
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            result.push(item2)
+          end
+        end
+      end
+    end
+    return result
+  end
+
+  def FileBase::QueryKeywords(query, user, power)
+    db = FileBase.load($config[:DBpath])
+    result = []
+    for item in db
+      if power >= item[:minPW]
+        if item[:keywords].include?(query)
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          result.push(item2)
+        end
+      else
+        if user == item[:owner]
+          if item[:keywords].include?(query)
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            result.push(item2)
+          end
+        end
+      end
+    end
+    return result
+  end
+
+  def FileBase::QueryOwner(query, user, power)
+    db = FileBase.load($config[:DBpath])
+    result = []
+    query.nil? ? query = user : nil
+    for item in db
+      if power >= item[:minPW]
+        if item[:owner] == query
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          result.push(item2)
+        end
+      else
+        if user == item[:owner]
+          if item[:owner] == query
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            result.push(item2)
+          end
+        end
+      end
+    end
+    return result
+  end
+
+  def FileBase::QueryBefore(query, user, power)
+    db = FileBase.load($config[:DBpath])
+    result = []
+    query.nil? ? query = Time.new.to_i : nil
+    for item in db
+      if power >= item[:minPW]
+        if item[:date] < query.to_i
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          result.push(item2)
+        end
+      else
+        if user == item[:owner]
+          if item[:date] < query.to_i
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            result.push(item2)
+          end
+        end
+      end
+    end
+    return result
+  end
+
+  def FileBase::QueryAfter(query, user, power)
+    db = FileBase.load($config[:DBpath])
+    result = []
+    query.nil? ? query = Time.new.to_i : nil
+    for item in db
+      if power >= item[:minPW]
+        if item[:date] > query.to_i
+          item2 = {}
+          for key in [:name, :ext, :date, :keywords, :owner]
+            item2[key] = item[key]
+          end
+          result.push(item2)
+        end
+      else
+        if user == item[:owner]
+          if item[:date] > query.to_i
+            item2 = {}
+            for key in [:name, :ext, :date, :keywords, :owner]
+              item2[key] = item[key]
+            end
+            result.push(item2)
+          end
+        end
+      end
+    end
+    return result
   end
 
 

@@ -5,7 +5,7 @@ module AP
       @id = id
       @agents = agents
       @headers = {
-        :AP=>$config["version"],
+        :AP=>$config[:version],
         :APS=>nil,
         :Code=>"200 OK",
         :Content=>{}
@@ -44,7 +44,7 @@ module AP
             if output
               @userinfo = [input[0], output]
               AP.log("Login eseguito (#{input[0]})", @id)
-              @socket.puts(@headers.merge({:Code=>"200 OK", :Content=>{:Response=>"Login eseguito", :Power=>@userinfo[1]}}).to_json)
+              @socket.puts(@headers.merge({:Code=>"200 OK", :Content=>{:Response=>"Login eseguito come #{@userinfo[0]}", :Power=>@userinfo[1]}}).to_json)
             else
               AP.log("Login fallito (#{input[0]})", @id)
               @socket.puts(@headers.merge({:Code=>"401 Unauthorized", :Content=>{:Response=>"Login fallito"}}).to_json)

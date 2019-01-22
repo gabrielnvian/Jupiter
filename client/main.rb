@@ -9,7 +9,7 @@ require_relative "filebase.rb"
 
 # $host = "localhost"
 # $host = "192.168.1.130"
-$host = "138.201.65.198"
+$host = "gabrielvian.com"
 $port = 2556
 
 $version = "3.3"
@@ -32,7 +32,7 @@ begin
         AP.changeport(cmd.split(" ")[1])
       when "exit"
         if $server
-          puts "\nDisconnessione automatica..."
+          puts "#{COLOR::YELLOW}\nDisconnessione automatica...#{COLOR::CLEAR}"
           Auth.logout()
         end
 
@@ -62,7 +62,7 @@ begin
         when "query", "search"
           FileBase.query(cmd.split(" ")[2])
         else
-          AP.output("FileBase: comando non riconosciuto")
+          AP.output(COLOR::RED+"FileBase: comando non riconosciuto"+COLOR::CLEAR)
         end
       
       when "auth"
@@ -70,19 +70,19 @@ begin
         when "list"
           Auth.list()
         else
-          AP.output("Auth: comando non riconosciuto")
+          AP.output(COLOR::RED+"Auth: comando non riconosciuto"+COLOR::CLEAR)
         end
       
       else
-        AP.output("Comando non riconosciuto")
+        AP.output(COLOR::RED+"Comando non riconosciuto"+COLOR::CLEAR)
       end
     rescue Interrupt
-      puts "\nComando annullato"
+      puts "#{COLOR::GREEN}\nComando annullato#{COLOR::CLEAR}"
     end
   end
 rescue Interrupt
   if $server
-    puts "\nDisconnessione automatica..."
+    puts "#{COLOR::YELLOW}\nDisconnessione automatica...#{COLOR::CLEAR}"
     Auth.logout()
   end
 end
