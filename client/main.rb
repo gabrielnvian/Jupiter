@@ -7,9 +7,9 @@ require_relative "core.rb"
 require_relative "auth.rb"
 require_relative "filebase.rb"
 
-$host = "localhost"
+# $host = "localhost"
 # $host = "192.168.1.130"
-# $host = "gabrielvian.com"
+$host = "gabrielvian.com"
 $port = 2556
 
 $version = "3.3"
