@@ -154,7 +154,7 @@ module AP
       response = AP.jsontosym(JSON.parse($server.gets))
       time2 = Time.now
       if response[:Code] == CODE_OK
-        AP.output("Ridardo in secondi: #{(time2 - time1) * 1000.0}")
+        AP.output("Ridardo in millisecondi: #{(time2 - time1) * 1000.0}")
         return true
       elsif response[:Code] == CODE_ERROR
         AP.reset()
