@@ -57,7 +57,7 @@ module FileBase
           for item in response[:Content][:Response]
             files.push([
               item[:uid],
-              item[:name][0..40] + "." + item[:ext], 
+              item[:name][0..32] + "." + item[:ext], 
               Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
               item[:keywords].join(", ")[0..35], 
               item[:owner]
