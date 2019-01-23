@@ -146,6 +146,29 @@ module AP
     $credentials = [nil, 0]
     #AP.output(COLOR::YELLOW+"Il server non ha risposto alla richiesta, pertanto la connessione e' stata chiusa"+COLOR::CLEAR)
   end
+
+  def AP::ping()
+    if $server
+      time1 = Time.now
+      $server.puts $headers.merge({:Content=>{:Request=>"HELLOWORLD"}}).to_json
+      response = AP.jsontosym(JSON.parse($server.gets))
+      time2 = Time.now
+      if response[:Code] == CODE_OK
+        AP.output("Ridardo in secondi: #{(time2 - time1) * 1000.0}")
+        return true
+      elsif response[:Code] == CODE_ERROR
+        AP.reset()
+        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        return false
+      else
+        AP.output(COLOR::RED + response[:Content][:Response] + COLOR::CLEAR)
+        return false
+      end
+    else
+      AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
+      return false
+    end
+  end
 end
 
 

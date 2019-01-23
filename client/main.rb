@@ -36,6 +36,9 @@ begin
           Auth.logout()
         end
 
+      when "ping"
+        AP.ping()
+
       when "login"
         Auth.login(cmd.split(" ")[1])
       
