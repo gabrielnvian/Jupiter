@@ -44,6 +44,7 @@ module Auth
         return 0
       else
         if Auth.checkpwd(usr, old)
+          pow = Auth.getpower(usr)
           File.open("auth/#{usr}.ini", "w") do |f1|
             hashed = Digest::MD5.hexdigest(pwd).downcase
             f1.puts "['#{hashed}', #{pow}]"
