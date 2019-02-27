@@ -17,4 +17,8 @@
 | PASS        | Authentication password.                                            |     OK     |
 | USER        | Authentication username.                                            |     OK     |
 | AUTH        | Request TLS/SSL.                                                    |     OK*    |
-| MLSD        | Lists the contents of a directory if a directory is named.          |            |
+| MLST        | Lists the contents of a directory if a directory is named.          |            |
+| FEAT        | Lists the features of the server.                                   |            |
+| EPRT        | Returns the long address to which the server should connect.        |            |
+| MFMT        | Edit last modification time of a file.                              |            |
+| MDTM        | Returns last modify time of a file.                                 |            |

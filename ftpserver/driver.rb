@@ -8,7 +8,7 @@ class Driver
   end
 
   def run()
-    @sock.puts $ftpconfig[:welcomeMessage]
+    @sock.puts "220-#{$ftpconfig[:welcomeMessage]}"
     
     while true
       request = @sock.gets.chomp
@@ -52,8 +52,21 @@ class Driver
         return "200 CDUP successful. \"#{exposeDir()}\" is current directory."
       else
       end
-    when "PWD"
+    when "PWD" #-----------------------------# PWD
       return "257 \"#{exposeDir()}\" is current directory."
+    when "FEAT" #----------------------------# FEAT
+      return
+        "211-Features:\n" +
+        "MDTM\n" +
+        "SIZE\n" +
+        "MLST type*;size*;modify*;\n" +
+        "MLSD\n" +
+        "MFMT\n" +
+        "EPSV\n" +
+        "EPRT\n" +
+        "211 End"
+      when "MLSD"
+        doAction(:list, [request.split(" ")[1]])
     else #-----------------------------------# ELSE
       return "202 Command not implemented"
     end
@@ -64,8 +77,6 @@ class Driver
     when :auth1 #----------------------------# FIRST AUTH (USER)
       @user = params[0]
       return true
-
-
     when :auth2 #----------------------------# SECOND AUTH (PWD)
       @pwd = params[0]
       if authenticate(@user, @pwd)
@@ -84,6 +95,8 @@ class Driver
       else
         return false
       end
+    when :list #-----------------------------# LIST (MLSD)
+
     else #-----------------------------------# ELSE
     end
   end
