@@ -1,0 +1,13 @@
+{
+  :name=>"tohash",
+  :active=>true,
+  :folders=>[],
+  :commands=>{
+    "HASH"=>1
+  },
+  :startupTasks=>[],
+  :dependencies=>[
+    "digest"
+  ],
+  :libs=>[]
+}

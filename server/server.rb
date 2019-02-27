@@ -43,7 +43,7 @@ AP.log("Server in ascolto su #{$config[:address]}:#{$config[:port]}", nil, "serv
 
 
 # Tasks on server startup
-agents = AP.getagents()
+agents, $loaded_libs = AP.getagents()
 
 AP.log("Lancio script di avvio in corso...", nil, "server")
 ranTasks = 0

@@ -1,0 +1,12 @@
+{
+  :name=>"helloworld",
+  :active=>true,
+  :folders=>[],
+  :commands=>{
+    "HELLOWORLD"=>0,
+    "CLOSE"=>0
+  },
+  :startupTasks=>[],
+  :dependencies=>[],
+  :libs=>[]
+}

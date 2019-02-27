@@ -1,0 +1,15 @@
+{
+  :name=>"hashcracker",
+  :active=>true,
+  :folders=>[
+    "md5"
+  ],
+  :commands=>{
+    "CRACK"=>1
+  },
+  :startupTasks=>[],
+  :dependencies=>[
+    "digest"
+  ],
+  :libs=>[]
+}

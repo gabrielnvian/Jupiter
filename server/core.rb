@@ -15,7 +15,11 @@ module AP
     AP.log("Caricamento agenti...", nil)
     begin
       needed_install = false
-      agents = eval(File.readlines("agents/agents.ini").join(""))
+      libs = []
+      agents = []
+      for file in Dir.entries("agents/conf")[2..-1]
+        agents.push(eval(File.readlines("agents/conf/#{file}").join("")))
+      end
       agents.each_with_index do |agent, i|
         if agent[:active]
           FileUtils.mkdir_p("agents/files/#{agent[:name]}")
@@ -38,6 +42,13 @@ module AP
               end
             end
           end
+
+          for lib in agent[:libs]
+            if File.exist?("lib/#{lib}.rb")
+              libs.push(lib)
+              require_relative "lib/#{lib}.rb"
+            end
+          end
           
           load "agents/#{agent[:name]}.rb"
         else
@@ -52,7 +63,7 @@ module AP
 
       AP.log("Agenti attivi: #{agents}", nil)
       
-      return agents
+      return agents, libs
     rescue
       AP.log("Caricamento agenti fallito", nil, "error")
       AP.log($!, nil, "backtrace")
