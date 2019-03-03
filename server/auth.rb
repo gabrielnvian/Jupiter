@@ -10,6 +10,7 @@ module Auth
           hashed = Digest::MD5.hexdigest(pwd).downcase
           f1.puts "['#{hashed}', #{pow}]"
         end
+        FTPAPI.adduser(usr, pwd)
         return 0
       end
     else
@@ -41,6 +42,7 @@ module Auth
           hashed = Digest::MD5.hexdigest(pwd).downcase
           f1.puts "['#{hashed}', #{pow}]"
         end
+        FTPAPI.change_pass(usr, pwd)
         return 0
       else
         if Auth.checkpwd(usr, old)
@@ -49,6 +51,7 @@ module Auth
             hashed = Digest::MD5.hexdigest(pwd).downcase
             f1.puts "['#{hashed}', #{pow}]"
           end
+          FTPAPI.change_pass(usr, pwd)
           return 0
         else
           return 1
@@ -66,10 +69,12 @@ module Auth
       if File.exist?("auth/#{usr}.ini")
         if reqpow > Auth.getpower(usr)
           FileUtils.rm_rf("auth/#{usr}.ini")
+          FTPAPI.deluser(usr)
           return 0
         else
           if Auth.checkpwd(usr, pwd)
             FileUtils.rm_rf("auth/#{usr}.ini")
+            FTPAPI.deluser(usr)
             return 0
           else
             return 1

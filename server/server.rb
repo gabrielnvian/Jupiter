@@ -20,6 +20,12 @@ if File.exist?(".running") && ARGV[0] != "force"
   exit!
 end
 
+system('reg query "HKU\S-1-5-19" > nul 2> nul')
+if `echo %errorlevel%`.chomp != "0"
+  AP.log("Sono richiesti privilegi da amministratore per avviare il server", nil, "error")
+  exit!
+end
+
 File.exist?("agents") ? nil : FileUtils.mkdir_p("agents")
 File.exist?("auth") ? nil : FileUtils.mkdir_p("auth")
 
