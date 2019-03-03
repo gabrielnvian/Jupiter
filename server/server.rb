@@ -10,7 +10,6 @@ require_relative "handler.rb"
 require_relative "fulfillment.rb"
 require_relative "debug.rb"
 require_relative "core.rb"
-# require_relative "auth.rb"
 
 
 system("cls")
