@@ -1,0 +1,22 @@
+{
+  :name=>"filebase",
+  :active=>true,
+  :folders=>[
+	"database"
+  ],
+  :commands=>{
+    "UPLOAD"=>1,
+    "SUBMIT"=>1,
+    "CANCEL"=>1,
+    "LIST"=>1,
+    "QUERY"=>1
+  },
+  :startupTasks=>[
+    "filebase_create_subfolders",
+    "filebase_create_registry"
+  ],
+  :dependencies=>[
+    "zip"
+  ],
+  :libs=>[]
+}

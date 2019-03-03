@@ -10,7 +10,6 @@ require_relative "handler.rb"
 require_relative "fulfillment.rb"
 require_relative "debug.rb"
 require_relative "core.rb"
-require_relative "auth.rb"
 
 
 system("cls")
@@ -20,8 +19,17 @@ if File.exist?(".running") && ARGV[0] != "force"
   exit!
 end
 
+system('reg query "HKU\S-1-5-19" > nul 2> nul')
+if `echo %errorlevel%`.chomp != "0"
+  AP.log("Sono richiesti privilegi da amministratore per avviare il server", nil, "error")
+  exit!
+end
+
+for lib in Dir.entries("lib")[2..-1]
+  require_relative "lib/#{lib}"
+end
+
 File.exist?("agents") ? nil : FileUtils.mkdir_p("agents")
-File.exist?("auth") ? nil : FileUtils.mkdir_p("auth")
 
 File.exist?(".last.dll") ? lastlaunch = eval(File.open(".last.dll").readlines.join("")) : lastlaunch = "unknown#{rand(1111..9999)}"
 File.exist?("logs/latest.log") ? FileUtils.mv("logs/latest.log", "logs/#{lastlaunch}.log") : nil
@@ -43,7 +51,7 @@ AP.log("Server in ascolto su #{$config[:address]}:#{$config[:port]}", nil, "serv
 
 
 # Tasks on server startup
-agents = AP.getagents()
+agents, $loaded_libs = AP.getagents()
 
 AP.log("Lancio script di avvio in corso...", nil, "server")
 ranTasks = 0
