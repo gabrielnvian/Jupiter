@@ -1,5 +1,5 @@
 $config = {
-  :version=>"3.3",
+  :version=>"3.4",
   :address=>"localhost",
   :port=>2556,
   :DBpath=>"C:/Users/#{ENV["username"]}/Documents/GitHub/AlphaProtocol/server/agents/files/filebase/database",
