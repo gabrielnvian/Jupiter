@@ -104,7 +104,5 @@ module Auth
       list.push([entry.split(".")[0], Auth.getpower(entry.split(".")[0])])
     end
     return list
-  else
-    return false
   end
 end

@@ -48,19 +48,29 @@ module FTPAPI
     return File.exist?("#{$config[:FTPuserPath]}/#{username}")
   end
 
+  def FTPAPI::delete_folder(username)
+    FileUtils.rm_rf("#{$config[:FTPuserPath]}/#{username}")
+    return !File.exist?("#{$config[:FTPuserPath]}/#{username}")
+  end
+
   def FTPAPI::change_pass(username, newpwd)
     xml = File.readlines("#{$config[:FTPserverPath]}/FileZilla Server.xml").join("").chomp
     newsalt = SecureRandom.hex(32)
 
     doc = Nokogiri.XML(xml)
-    doc.at("//User[@Name=\"#{username}\"]//Option[@Name=\"Pass\"]").content = Digest::SHA2.new(512).hexdigest(newpwd + newsalt).upcase()
-    doc.at("//User[@Name=\"#{username}\"]//Option[@Name=\"Salt\"]").content = newsalt
 
-    File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
-      f1.puts doc
+    if doc.at("//User[@Name=\"#{username}\"]").nil?
+      FTPAPI.adduser(username, newpwd)
+    else
+      doc.at("//User[@Name=\"#{username}\"]//Option[@Name=\"Pass\"]").content = Digest::SHA2.new(512).hexdigest(newpwd + newsalt).upcase()
+      doc.at("//User[@Name=\"#{username}\"]//Option[@Name=\"Salt\"]").content = newsalt
+
+      File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
+        f1.puts doc
+      end
+
+      FTPAPI.reloadconfig()
     end
-
-    FTPAPI.reloadconfig()
     return true
   end
 
@@ -68,32 +78,41 @@ module FTPAPI
     FTPAPI.create_folder(username)
 
     xml = File.readlines("#{$config[:FTPserverPath]}/FileZilla Server.xml").join("").chomp
-    newsalt = SecureRandom.hex(32)
     doc = Nokogiri.XML(xml)
-    newuser = Nokogiri.XML(FTPAPI::DEFUSER)
 
-    newuser.at("//User").attributes["Name"].value = username
-    newuser.at("//Option[@Name=\"Pass\"]").content = Digest::SHA2.new(512).hexdigest(newpwd + newsalt).upcase()
-    newuser.at("//Option[@Name=\"Salt\"]").content = newsalt
+    if doc.at("//User[@Name=\"#{username}\"]").nil?
+      newsalt = SecureRandom.hex(32)
+      newuser = Nokogiri.XML(FTPAPI::DEFUSER)
 
-    doc.at("//Users").add_child(newuser.at("//User[@Name=\"#{username}\"]"))
+      newuser.at("//User").attributes["Name"].value = username
+      newuser.at("//Option[@Name=\"Pass\"]").content = Digest::SHA2.new(512).hexdigest(newpwd + newsalt).upcase()
+      newuser.at("//Option[@Name=\"Salt\"]").content = newsalt
+      newuser.at("//Permission").attributes["Dir"].value = "#{$config[:FTPuserPath]}/#{username}"
 
-    File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
-      f1.puts doc
+      doc.at("//Users").add_child(newuser.at("//User[@Name=\"#{username}\"]"))
+
+      File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
+        f1.puts doc
+      end
+
+      FTPAPI.reloadconfig()
     end
-
-    FTPAPI.reloadconfig()
     return true
   end
 
   def FTPAPI::deluser(username)
-    doc.at("//User[@Name=\"#{username}\"]").remove
+    FTPAPI.delete_folder(username)
+    xml = File.readlines("#{$config[:FTPserverPath]}/FileZilla Server.xml").join("").chomp
+    doc = Nokogiri.XML(xml)
+    if doc.at("//User[@Name=\"#{username}\"]") != nil
+      doc.at("//User[@Name=\"#{username}\"]").remove
 
-    File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
-      f1.puts doc
+      File.open("#{$config[:FTPserverPath]}/FileZilla Server.xml", "w") do |f1|
+        f1.puts doc
+      end
+
+      FTPAPI.reloadconfig()
     end
-
-    FTPAPI.reloadconfig()
     return true
   end
 end

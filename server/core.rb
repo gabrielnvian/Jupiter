@@ -42,13 +42,6 @@ module AP
               end
             end
           end
-
-          for lib in agent[:libs]
-            if File.exist?("lib/#{lib}.rb")
-              libs.push(lib)
-              require_relative "lib/#{lib}.rb"
-            end
-          end
           
           load "agents/#{agent[:name]}.rb"
         else

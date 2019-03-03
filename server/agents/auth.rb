@@ -44,6 +44,10 @@ end
 
 
 class OnServerStartup
+  def self.auth_create_dir()
+    File.exist?("auth") ? nil : FileUtils.mkdir_p("auth")
+  end
+
   def self.auth_adduser_root()
     File.exist?("auth/root") ? nil : Auth.adduser("root", $config[:rootPWD], 11, 11)
   end

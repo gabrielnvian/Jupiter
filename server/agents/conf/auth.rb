@@ -9,7 +9,8 @@
     "LIST"=>10
   },
   :startupTasks=>[
-    "auth_adduser_root"
+    "auth_adduser_root",
+    "auth_create_dir"
   ],
   :dependencies=>[
     "nokogiri"

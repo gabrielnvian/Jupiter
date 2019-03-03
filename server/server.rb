@@ -10,7 +10,7 @@ require_relative "handler.rb"
 require_relative "fulfillment.rb"
 require_relative "debug.rb"
 require_relative "core.rb"
-require_relative "auth.rb"
+# require_relative "auth.rb"
 
 
 system("cls")
@@ -26,8 +26,11 @@ if `echo %errorlevel%`.chomp != "0"
   exit!
 end
 
+for lib in Dir.entries("lib")[2..-1]
+  require_relative "lib/#{lib}"
+end
+
 File.exist?("agents") ? nil : FileUtils.mkdir_p("agents")
-File.exist?("auth") ? nil : FileUtils.mkdir_p("auth")
 
 File.exist?(".last.dll") ? lastlaunch = eval(File.open(".last.dll").readlines.join("")) : lastlaunch = "unknown#{rand(1111..9999)}"
 File.exist?("logs/latest.log") ? FileUtils.mv("logs/latest.log", "logs/#{lastlaunch}.log") : nil

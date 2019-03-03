@@ -56,7 +56,7 @@ begin
         Auth.changepwd(cmd.split(" ")[1], cmd.split(" ")[2], cmd.split(" ")[3])
       # FILEBASE ------------------------------------------------------------------
       
-      when "filebase"
+      when "filebase", "file"
         case cmd.split(" ")[1]
         when "addfile", "add"
           FileBase.addfile(cmd.split(" ")[2])
