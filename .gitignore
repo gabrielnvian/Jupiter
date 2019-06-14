@@ -3,3 +3,4 @@ server/agents/files/*
 server/auth
 server/.last.dll
 server/.running
+.idea
