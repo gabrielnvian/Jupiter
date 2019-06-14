@@ -1,0 +1,11 @@
+{
+  "name": "gethistory",
+  "active": true,
+  "folders": [],
+  "commands": {
+    "GET": 0
+  },
+  "startupTasks": [],
+  "dependencies": [],
+  "libs": []
+}
