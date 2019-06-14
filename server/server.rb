@@ -1,95 +1,103 @@
-require "socket"
-require "securerandom"
-require "json"
-require "fileutils"
-require "digest"
+require 'socket'
+require 'securerandom'
+require 'json'
+require 'fileutils'
+require 'digest'
+require 'logger'
 
-load "config.rb"
+load 'config.rb'
 
-require_relative "handler.rb"
-require_relative "fulfillment.rb"
-require_relative "debug.rb"
-require_relative "core.rb"
+# Load external libraries
+require_relative 'handler.rb'
+require_relative 'fulfillment.rb'
+# require_relative "debug.rb"
+require_relative 'core.rb'
+# require_relative "nodegate.rb"
 
+# Initialize logger
+LOG = Logger.new(STDOUT, datetime_format: '%d/%m %H:%M:%S')
+LOG.level = Logger::DEBUG
 
-system("cls")
-
-if File.exist?(".running") && ARGV[0] != "force"
-  AP.log("Un'altra istanza e' in esecuzione utilizzando la stessa cartella (.running)", nil, "error")
-  exit!
+# Check if another instance is running using the same folder, if so, exit
+if File.exist?('.running')
+  if ARGV[0] == 'force'
+    LOG.warn("L'avvio del server e' stato forzato")
+  else
+    LOG.fatal("Un'altra istanza e' in esecuzione utilizzando la stessa cartella (.running)")
+    exit!
+  end
 end
 
+# Check if instance has admin privileges, exit if not
 system('reg query "HKU\S-1-5-19" > nul 2> nul')
-if `echo %errorlevel%`.chomp != "0"
-  AP.log("Sono richiesti privilegi da amministratore per avviare il server", nil, "error")
+if `echo %errorlevel%`.chomp != '0'
+  LOG.fatal('Sono richiesti privilegi da amministratore per avviare il server')
   exit!
 end
 
-for lib in Dir.entries("lib")[2..-1]
+# Load all modules found in the lib folder
+Dir.entries('lib')[2..-1].each do |lib|
   require_relative "lib/#{lib}"
 end
 
-File.exist?("agents") ? nil : FileUtils.mkdir_p("agents")
+# Create required agents folder
+File.exist?('agents') ? nil : FileUtils.mkdir_p('agents')
 
-File.exist?(".last.dll") ? lastlaunch = eval(File.open(".last.dll").readlines.join("")) : lastlaunch = "unknown#{rand(1111..9999)}"
-File.exist?("logs/latest.log") ? FileUtils.mv("logs/latest.log", "logs/#{lastlaunch}.log") : nil
-
-$launchdate = Time.new.strftime("%d.%m.%Y-%H.%M")
-
-File.open(".last.dll", "w") do |f1|
-  f1.puts "'#{$launchdate}'"
+# Create .running file indicating an instance is using the folder
+File.open('.running', 'w') do |f1|
+  f1.puts ''
 end
 
-File.open(".running", "w") do |f1|
-  f1.puts ""
-end
-
-server = TCPServer.new $config[:address], $config[:port]
-
-ARGV[0] == "force" ? AP.log("L'avvio del server e' stato forzato", nil, "warning") : nil
-AP.log("Server in ascolto su #{$config[:address]}:#{$config[:port]}", nil, "server")
+# Initialize TCP server
+server = TCPServer.new CONFIG[:address], CONFIG[:port]
+# nodeserver = TCPServer.new "127.0.0.1", CONFIG[:port]
+# nodegate = Node::Gate.new(nodeserver)
+LOG.info("Server in ascolto su #{CONFIG[:address]}:#{CONFIG[:port]}")
 
 
-# Tasks on server startup
-agents, $loaded_libs = AP.getagents()
-
-AP.log("Lancio script di avvio in corso...", nil, "server")
-ranTasks = 0
+# Get tasks to launch
+agents = Jupiter.getagents
+LOG.info('Lancio script di avvio in corso...')
+ran_tasks = 0
+# Run tasks one by one
 agents.each do |agent|
   agent[:startupTasks].each do |task|
-    ranTasks += 1
+    ran_tasks += 1
     OnServerStartup.public_send(task)
   end
 end
-AP.log("Lanciati #{ranTasks} script di avvio", nil, "server")
+LOG.info("Lanciati #{ran_tasks} script di avvio")
 
 
-AP.log("In attesa di connessioni...", nil, "server")
-$open_sessions = 0
-system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
+open_sessions = 0 # Counter for open sessions
+
+# Waiting for connections
+LOG.info('In attesa di connessioni...')
+system("title Jupiter Server #{CONFIG['version']} (#{open_sessions})")
 while true
   begin
     Thread.fork(server.accept) do |socket|
       begin
-        $open_sessions += 1
-        system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
+        open_sessions += 1
+        system("title Jupiter Server #{CONFIG['version']} (#{open_sessions})")
         id = SecureRandom.hex(2)
-        AP.log("Socket aperto", id, "socket")
-        handler = AP::Handler.new(socket, id, agents)
-        handler.run()
+        LOG.info("#{id}: Nuova connessione")
+        handler = Jupiter::Handler.new(socket, id, agents)
+        handler.run
       rescue
-        AP.log("Errore nel creare il socket", id, "error")
-        AP.log($!, id, "backtrace")
-        AP.log($!.backtrace, id, "backtrace")
-        @socket.puts(@headers.merge({:Code=>"500 Internal Server Error", :Content=>{:Response=>"Errore interno del server"}}).to_json)
+        LOG.error('Errore nel creare il socket')
+        LOG.debug($ERROR_INFO)
+        LOG.debug($ERROR_INFO.backtrace)
+        @socket.puts(@headers.merge(Code: '500 Internal Server Error', Content: { Response: 'Errore interno del server' }).to_json)
       end
-      $open_sessions -= 1
-      system("title AlphaProtocol Server #{$config["version"]} (#{$open_sessions})")
-      AP.log("Socket chiuso", id, "socket")
+      open_sessions -= 1
+      system("title Jupiter Server #{CONFIG['version']} (#{open_sessions})")
+      LOG.info("Connessione chiusa")
     end
   rescue Interrupt
-    FileUtils.rm_rf(".running")
-    AP.log("Server offline", nil, "server")
+    FileUtils.rm_rf('.running')
+    LOG.info('Server fermato')
+    LOG.close
     exit!
   end
 end

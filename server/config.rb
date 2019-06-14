@@ -1,4 +1,4 @@
-$config = {
+CONFIG = {
   :version=>"3.4",
   :address=>"localhost",
   :port=>2556,

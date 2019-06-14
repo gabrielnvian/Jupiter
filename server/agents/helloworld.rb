@@ -1,14 +1,13 @@
 class Fulfillment
-  def helloworld(request, userinfo)
-    case request[:Content][:Request]
-    when "HELLOWORLD"
-      return {:Content=>{:Response=>"Hello World! :D"}}, true
-    when "CLOSE"
-      return {:Content=>{:Response=>"Logout eseguito (#{userinfo[0]})"}}, true
+  def helloworld(req, userinfo)
+    case req[:Cont][:Request]
+    when 'HELLOWORLD'
+      [{ Cont: { Resp: 'Hello World! :D' } }, true]
+    when 'CLOSE'
+      [{ Cont: { Resp: "Logout eseguito (#{userinfo[0]})" } }, true]
     end
   end
 end
-
 
 class OnServerStartup
 end

@@ -1,6 +1,6 @@
 class Fulfillment
-  def gethistory(request, userinfo)
-    return {:Content=>{:Response=>@history}}, true
+  def gethistory(req, userinfo)
+    [{ Cont: { Resp: @history } }, true]
   end
 end
 

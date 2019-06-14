@@ -1,15 +1,15 @@
 class Fulfillment
-  def tohash(request, userinfo)
-    hashtype = request[:Content][:Hashtype].downcase
-    string = request[:Content][:String]
-    
+  def tohash(req, userinfo)
+    hashtype = req[:Cont][:Hashtype].downcase
+    string = req[:Cont][:String]
+
     case hashtype
     when "md5"
       newhash = Digest::MD5.hexdigest(string).downcase
+      [{ Cont: { Resp: newhash } }, true]
     else
-      return {:Code=>"400 Bad Request", :Content=>{:Response=>"Algoritmo hash non supportato"}}, true
+      [{ Code: "400 Bad Request", Cont: { Resp: "Algoritmo hash non supportato" } }, true]
     end
-    return {:Content=>{:Response=>newhash}}, true
   end
 end
 

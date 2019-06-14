@@ -1,94 +1,98 @@
-module AP
-  def AP::getsafeid(array, len = 4)
-    id = SecureRandom.hex(len/2)
-    while array.include?(id)
-      id = SecureRandom.hex(len/2)
-    end
-    return id
+module Jupiter
+  def self.getsafeid(array, len = 4)
+    id = SecureRandom.hex(len / 2)
+    id = SecureRandom.hex(len / 2) while array.include?(id)
+    id
   end
 
-  def AP::serialize(str, len, char="0") # DEPRECATED
-    return char*(len - str.length) + str
+  def self.serialize(str, len, char = '0') # DEPRECATED
+    char * (len - str.length) + str
   end
 
-  def AP::getagents()
-    AP.log("Caricamento agenti...", nil)
+  def self.getagents
+    LOG.debug('Caricamento agenti...')
     begin
       needed_install = false
-      libs = []
       agents = []
-      for file in Dir.entries("agents/conf")[2..-1]
-        agents.push(eval(File.readlines("agents/conf/#{file}").join("")))
+      Dir.entries('agents/conf')[2..-1].each do |file|
+        conf = File.readlines("agents/conf/#{file}").join('')
+        agents.push(Jupiter.jsontosym(JSON.parse(conf)))
       end
       agents.each_with_index do |agent, i|
         if agent[:active]
           FileUtils.mkdir_p("agents/files/#{agent[:name]}")
-          
-          for folder in agent[:folders]
-            FileUtils.mkdir_p("agents/files/#{agent[:name]}/#{folder}")
-          end
 
-          for dependency in agent[:dependencies]
+          Jupiter.getagents_folders(agent)
+
+          agent[:dependencies].each do |dependency|
             begin
               require dependency
             rescue LoadError
-              begin
-                needed_install = true
-                AP.log("Installazione libreria \"#{dependency}\" richiesta da \"#{agent[:name]}\"", nil, "warning")
-                system("gem install #{dependency} >nul")
-                AP.log("Libreria \"#{dependency}\" installata con successo per \"#{agent[:name]}\"", nil, "log")
-              rescue
-                AP.log("Installazione libreria \"#{dependency}\" per \"#{agent[:name]}\" fallita", nil, "error")
-              end
+              needed_install = true
+              Jupiter.getagents_install(agent)
             end
           end
-          
+
           load "agents/#{agent[:name]}.rb"
         else
+          # If agent is not active delete it from the list
           agents.delete_at(i)
         end
       end
 
       if needed_install
-        AP.log("E' necessario un riavvio per completare l'installazione delle librerie", nil, "error")
+        LOG.fatal("E' necessario riavviare per completare l'installazione delle librerie")
         exit!
       end
 
-      AP.log("Agenti attivi: #{agents}", nil)
-      
-      return agents, libs
+      LOG.debug("Agenti attivi: #{agents}")
+
+      return agents
     rescue
-      AP.log("Caricamento agenti fallito", nil, "error")
-      AP.log($!, nil, "backtrace")
-      AP.log($!.backtrace, nil, "backtrace")
+      LOG.error('Caricamento agenti fallito')
+      LOG.debug($ERROR_INFO)
+      LOG.debug($ERROR_INFO.backtrace)
       return nil
     end
   end
 
-  def AP::getagentminpower(agents, agentname, command)
-    for agent in agents
+  def self.getagents_folders(agent)
+    agent[:folders].each do |folder|
+      FileUtils.mkdir_p("agents/files/#{agent[:name]}/#{folder}")
+    end
+  end
+
+  def self.getagents_install(agent)
+    begin
+      LOG.info("Installazione libreria \"#{dependency}\" richiesta da \"#{agent[:name]}\"")
+      system("gem install #{dependency} >nul")
+      LOG.info("Libreria \"#{dependency}\" installata con successo per \"#{agent[:name]}\"")
+    rescue
+      LOG.error("Installazione libreria \"#{dependency}\" per \"#{agent[:name]}\" fallita")
+    end
+  end
+
+  def self.getagentminpower(agents, agentname, command)
+    agents.each do |agent|
       if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
         return agent[:commands][command.upcase]
       end
     end
   end
 
-  def AP::agentcommand?(agents, agentname, command)
-    for agent in agents
-      return true if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
+  def self.agentcommand?(agents, agname, cmd)
+    agents.each do |agent|
+      agent[:name] == agname.downcase && agent[:commands].keys.include?(cmd.upcase)
     end
-    return false
+    false
   end
 
-  def AP::jsontosym(h)
+  def self.jsontosym(h)
     newhash = {}
-    for key in h.keys
-      if h[key].kind_of?(Hash)
-        newhash[key.to_sym] = AP.jsontosym(h[key])
-      else
-        newhash[key.to_sym] = h[key]
-      end
+    h.keys.each do |key|
+      # If value is an hash call this method on it
+      newhash[key.to_sym] = h[key].is_a?(Hash) ? Jupiter.jsontosym(h[key]) : h[key]
     end
-    return newhash
+    newhash
   end
 end
