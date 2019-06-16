@@ -8,56 +8,55 @@ require_relative 'auth.rb'
 require_relative 'filebase.rb'
 require_relative 'colors.rb'
 
-host = 'localhost'
+$host = 'localhost'
 # host = "192.168.1.130"
 # host = "gabrielvian.com"
-port = 2556
+$port = 2556
 
-VERSION = '3.4'
+VERSION = '3.4'.freeze
 
-creds = [nil, 0]
-server = nil# JClient.connect(host, port)
+$creds = [nil, 0]
+$server = nil # JClient.connect(host, port)
 
 
 begin
   loop do
-    cmd = JClient.input(server, creds)
+    cmd = JClient.input
     begin
       case cmd.split(' ')[0]
       # CONNECTION -------------------------------------------------------------
       when 'connect'
-        server = JClient.connect(host, port)
+        $server = JClient.connect
       when 'host'
-        host = JClient.chghost(server, cmd.split(' ')[1]) ? cmd.split(' ')[1] : host
+        JClient.chghost(cmd.split(' ')[1])
       when 'port'
-        port = JClient.chgport(server, cmd.split(' ')[1]) ? cmd.split(' ')[1].to_i : port
+        JClient.chgport(cmd.split(' ')[1])
       when 'exit'
-        if server
-          JClient.output(server, creds, COLOR::YELLOW + "\nDisconnessione automatica..." + COLOR::CLEAR)
-          AuthClient.logout(server)
+        if $server
+          JClient.output(COLOR::YELLOW + "\nDisconnessione automatica..." + COLOR::CLEAR)
+          AuthClient.logout
         end
 
       when 'ping'
         JClient.ping
 
       when 'login'
-        newcreds = AuthClient.login(server, creds, cmd.split(' ')[1])
-        creds = newcreds if newcreds
+        $creds = AuthClient.login(cmd.split(' ')[1]) || $creds
 
       when 'logout', 'disconnect'
-        AuthClient.logout(server)
-      # USER MGM ---------------------------------------------------------------
+        AuthClient.logout
 
+      # USER MGMT --------------------------------------------------------------
       when 'adduser'
-        AuthClient.adduser(server, cmd.split(' ')[1], cmd.split(' ')[2], cmd.split(' ')[3])
+        AuthClient.adduser(cmd.split(' ')[1], cmd.split(' ')[2], cmd.split(' ')[3])
 
       when 'deluser'
-        AuthClient.deluser(server, cmd.split(' ')[1], cmd.split(' ')[2])
+        AuthClient.deluser(cmd.split(' ')[1], cmd.split(' ')[2])
 
       when 'changepwd'
         AuthClient.changepwd(cmd.split(' ')[1], cmd.split(' ')[2], cmd.split(' ')[3])
-      # FILEBASE ---------------------------------------------------------------
 
+      # FILEBASE ---------------------------------------------------------------
       when 'filebase', 'file'
         case cmd.split(' ')[1]
         when 'addfile', 'add'
@@ -69,7 +68,7 @@ begin
         when 'query', 'search'
           FileBase.query(cmd.split(' ')[2])
         else
-          JClient.output(server, creds, COLOR::RED + 'FileBase: comando non riconosciuto' + COLOR::CLEAR)
+          JClient.output(COLOR::RED + 'FileBase: comando non riconosciuto' + COLOR::CLEAR)
         end
 
       when 'auth'
@@ -77,19 +76,19 @@ begin
         when 'list'
           AuthClient.list
         else
-          JClient.output(server, creds, COLOR::RED + 'Auth: comando non riconosciuto' + COLOR::CLEAR)
+          JClient.output(COLOR::RED + 'Auth: comando non riconosciuto' + COLOR::CLEAR)
         end
 
       else
-        JClient.output(server, creds, COLOR::RED + 'Comando non riconosciuto' + COLOR::CLEAR)
+        JClient.output(COLOR::RED + 'Comando non riconosciuto' + COLOR::CLEAR)
       end
     rescue Interrupt
-      JClient.output(server, creds, COLOR::GREEN + "\nComando annullato" + COLOR::CLEAR)
+      JClient.output(COLOR::GREEN + "\nComando annullato" + COLOR::CLEAR)
     end
   end
 rescue Interrupt
   if server
-    JClient.output(server, creds, COLOR::YELLOW + "\nDisconnessione automatica..." + COLOR::CLEAR)
-    AuthClient.logout(server)
+    JClient.output(COLOR::YELLOW + "\nDisconnessione automatica..." + COLOR::CLEAR)
+    AuthClient.logout
   end
 end

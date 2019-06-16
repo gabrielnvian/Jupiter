@@ -6,7 +6,6 @@ module COLOR
   COLOR::CYAN = "[96m"
   COLOR::BLUE = "[94m"
   COLOR::RED = "[91m"
-  COLOR::CLEAR = ''
 
   COLOR::BOLD = "[1m"
 end
