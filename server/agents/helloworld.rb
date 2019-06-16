@@ -1,6 +1,6 @@
 class Fulfillment
   def helloworld(req, userinfo)
-    case req[:Cont][:Request]
+    case req[:Cont][:Req]
     when 'HELLOWORLD'
       [{ Cont: { Resp: 'Hello World! :D' } }, true]
     when 'CLOSE'
