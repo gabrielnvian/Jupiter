@@ -49,10 +49,10 @@ module Jupiter
       LOG.debug("Agenti attivi: #{agents}")
 
       return agents
-    rescue
+    rescue => e
       LOG.error('Caricamento agenti fallito')
-      LOG.debug($ERROR_INFO)
-      LOG.debug($ERROR_INFO.backtrace)
+      LOG.debug(e)
+      LOG.debug(e.backtrace)
       return nil
     end
   end
@@ -81,17 +81,19 @@ module Jupiter
 
   def self.getagentminpower(agents, agentname, command)
     agents.each do |agent|
-      if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase)
-        return agent[:commands][command.upcase]
+      if agent[:name] == agentname.downcase && agent[:commands].keys.include?(command.upcase.to_sym)
+        return agent[:commands][command.upcase.to_sym]
       end
     end
   end
 
   def self.agentcommand?(agents, agname, cmd)
     agents.each do |agent|
-      agent[:name] == agname.downcase && agent[:commands].keys.include?(cmd.upcase)
+      next if agent[:name] != agname.downcase
+
+      return agent[:commands].keys.include?(cmd.upcase.to_sym)
     end
-    false
+    return false
   end
 
   def self.jsontosym(h)

@@ -31,7 +31,7 @@ end
 # Check if instance has admin privileges, exit if not
 system('reg query "HKU\S-1-5-19" > nul 2> nul')
 if `echo %errorlevel%`.chomp != '0'
-  LOG.fatal('Sono richiesti privilegi da amministratore per avviare il server')
+  LOG.fatal('Sono richiesti privilegi di amministratore per avviare il server')
   exit!
 end
 
@@ -77,10 +77,10 @@ while true
         LOG.info("#{id}: Nuova connessione")
         handler = Jupiter::Handler.new(socket, id, agents)
         handler.run
-      rescue
+      rescue => e
         LOG.error('Errore nel creare il socket')
-        LOG.debug($ERROR_INFO)
-        LOG.debug($ERROR_INFO.backtrace)
+        LOG.debug(e)
+        LOG.debug(e.backtrace)
         @socket.puts(@headers.merge(Code: '500 Internal Server Error', Content: { Response: 'Errore interno del server' }).to_json)
       end
       open_sessions -= 1

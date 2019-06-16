@@ -44,7 +44,7 @@ module FTPAPI
   end
 
   def self.create_folder(username)
-    FileUtils.mkdir_p("#{CONFIg[:FTPuserPath]}/#{username}")
+    FileUtils.mkdir_p("#{CONFIG[:FTPuserPath]}/#{username}")
     File.exist?("#{CONFIG[:FTPuserPath]}/#{username}")
   end
 
