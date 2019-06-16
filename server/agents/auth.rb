@@ -45,7 +45,7 @@ end
 
 class OnServerStartup
   def self.auth_create_dir
-    File.exist?('auth') ? nil : FileUtils.mkdir_p('auth')
+    FileUtils.mkdir_p('auth') unless File.exist?('auth')
   end
 
   def self.auth_adduser_root

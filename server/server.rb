@@ -10,9 +10,7 @@ load 'config.rb'
 # Load external libraries
 require_relative 'handler.rb'
 require_relative 'fulfillment.rb'
-# require_relative "debug.rb"
 require_relative 'core.rb'
-# require_relative "nodegate.rb"
 
 # Initialize logger
 LOG = Logger.new(STDOUT, datetime_format: '%d/%m %H:%M:%S')
@@ -22,6 +20,8 @@ LOG.level = Logger::DEBUG
 if File.exist?('.running')
   if ARGV[0] == 'force'
     LOG.warn("L'avvio del server e' stato forzato")
+  elsif LOG.level.zero?
+    LOG.warn("Avvio del server in modalita' di debug")
   else
     LOG.fatal("Un'altra istanza e' in esecuzione utilizzando la stessa cartella (.running)")
     exit!
@@ -35,11 +35,6 @@ if `echo %errorlevel%`.chomp != '0'
   exit!
 end
 
-# Load all modules found in the lib folder
-Dir.entries('lib')[2..-1].each do |lib|
-  require_relative "lib/#{lib}"
-end
-
 # Create required agents folder
 File.exist?('agents') ? nil : FileUtils.mkdir_p('agents')
 
@@ -50,8 +45,6 @@ end
 
 # Initialize TCP server
 server = TCPServer.new CONFIG[:address], CONFIG[:port]
-# nodeserver = TCPServer.new "127.0.0.1", CONFIG[:port]
-# nodegate = Node::Gate.new(nodeserver)
 LOG.info("Server in ascolto su #{CONFIG[:address]}:#{CONFIG[:port]}")
 
 
@@ -59,7 +52,7 @@ LOG.info("Server in ascolto su #{CONFIG[:address]}:#{CONFIG[:port]}")
 agents = Jupiter.getagents
 LOG.info('Lancio script di avvio in corso...')
 ran_tasks = 0
-# Run tasks one by one
+# Run agents tasks
 agents.each do |agent|
   agent[:startupTasks].each do |task|
     ran_tasks += 1

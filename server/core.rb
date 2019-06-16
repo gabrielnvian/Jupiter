@@ -23,6 +23,7 @@ module Jupiter
           FileUtils.mkdir_p("agents/files/#{agent[:name]}")
 
           Jupiter.getagents_folders(agent)
+          Jupiter.getagents_libs(agent)
 
           agent[:dependencies].each do |dependency|
             begin
@@ -59,6 +60,12 @@ module Jupiter
   def self.getagents_folders(agent)
     agent[:folders].each do |folder|
       FileUtils.mkdir_p("agents/files/#{agent[:name]}/#{folder}")
+    end
+  end
+
+  def self.getagents_libs(agent)
+    agent[:libs].each do |lib|
+      require_relative "lib/#{lib}"
     end
   end
 

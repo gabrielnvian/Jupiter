@@ -1,12 +1,12 @@
 module Auth
   def Auth::adduser(usr, pwd, reqpow, pow)
     pow.nil? ? pow = reqpow - 1 : nil
-    pow.to_i > 10  && usr != "root" ? pow = 10 : nil
+    pow.to_i > 10  && usr != 'root' ? pow = 10 : nil
     if reqpow >= pow.to_i
       if File.exist?("auth/#{usr}.ini")
         return 1
       else
-        File.open("auth/#{usr}.ini", "w") do |f1|
+        File.open("auth/#{usr}.ini", 'w') do |f1|
           hashed = Digest::MD5.hexdigest(pwd).downcase
           f1.puts "['#{hashed}', #{pow}]"
         end
@@ -20,7 +20,7 @@ module Auth
 
   def Auth::getpower(usr)
     if File.exist?("auth/#{usr}.ini")
-      return eval(File.readlines("auth/#{usr}.ini").join(""))[1]
+      return eval(File.readlines("auth/#{usr}.ini").join(''))[1]
     else
       return -1
     end
@@ -28,7 +28,7 @@ module Auth
 
   def Auth.checkpwd(usr, pwd)
     if File.exist?("auth/#{usr}.ini")
-      return eval(File.readlines("auth/#{usr}.ini").join(""))[0] == Digest::MD5.hexdigest(pwd.to_s).downcase
+      return eval(File.readlines("auth/#{usr}.ini").join(''))[0] == Digest::MD5.hexdigest(pwd.to_s).downcase
     else
       return false
     end
@@ -38,7 +38,7 @@ module Auth
     if File.exist?("auth/#{usr}.ini")
       if reqpow > Auth.getpower(usr)
         pow = Auth.getpower(usr)
-        File.open("auth/#{usr}.ini", "w") do |f1|
+        File.open("auth/#{usr}.ini", 'w') do |f1|
           hashed = Digest::MD5.hexdigest(pwd).downcase
           f1.puts "['#{hashed}', #{pow}]"
         end
@@ -47,7 +47,7 @@ module Auth
       else
         if Auth.checkpwd(usr, old)
           pow = Auth.getpower(usr)
-          File.open("auth/#{usr}.ini", "w") do |f1|
+          File.open("auth/#{usr}.ini", 'w') do |f1|
             hashed = Digest::MD5.hexdigest(pwd).downcase
             f1.puts "['#{hashed}', #{pow}]"
           end
@@ -63,7 +63,7 @@ module Auth
   end
 
   def Auth::deluser(usr, pwd = nil, reqpow = 0)
-    if usr == "root"
+    if usr == 'root'
       return 3
     else
       if File.exist?("auth/#{usr}.ini")
@@ -100,8 +100,8 @@ module Auth
 
   def Auth::list(reqpow)
     list = []
-    for entry in Dir.entries("auth")[2..-1]
-      list.push([entry.split(".")[0], Auth.getpower(entry.split(".")[0])])
+    for entry in Dir.entries('auth')[2..-1]
+      list.push([entry.split('.')[0], Auth.getpower(entry.split('.')[0])])
     end
     return list
   end
