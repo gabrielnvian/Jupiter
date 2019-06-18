@@ -36,17 +36,17 @@ module Jupiter
             output = Auth.login(input[0], input[1])
             if output
               @userinfo = [input[0], output]
-              LOG.debug("#{@id}: Login eseguito (#{input[0]})")
-              @socket.puts(@headers.merge(Code: '200 OK', Cont: { Resp: "Login eseguito come #{@userinfo[0]}", Power: @userinfo[1] }).to_json)
+              LOG.debug("#{@id}: #{lang(LANG::LOGIN_OK)} (#{input[0]})")
+              @sc.puts(@hd.merge(Code: '200 OK', Cont: { Resp: lang(LANG::LOGIN_AS, @us[0]), Power: @us[1] }).to_json)
             else
-              LOG.warn("#{@id}: Login fallito (#{input[0]})")
-              @socket.puts(@headers.merge(Code: '401 Unauthorized', Cont: { Resp: 'Login fallito' }).to_json)
+              LOG.warn("#{@id}: #{lang(LANG::BAD_LOGIN)} (#{input[0]})")
+              @sc.puts(@hd.merge(Code: '401 Unauthorized', Cont: { Resp: lang(LANG::BAD_LOGIN) }).to_json)
             end
           # If request contains (possibly) login credentials but
           # user is already logged in
           elsif input.is_a?(Array) && !@userinfo[0].nil?
-            LOG.debug("#{@id}: Login gia' eseguito (#{@userinfo[0]})")
-            @socket.puts(@headers.merge(Code: '400 Bad Request', Cont: { Resp: "Login gia' eseguito (#{@userinfo[0]})" }).to_json)
+            LOG.debug("#{@id}: #{lang(LANG::ALREADY_LOGGED_IN)} (#{@us[0]})")
+            @sc.puts(@hd.merge(Code: '400 Bad Request', Cont: { Resp: "#{lang(LANG::ALREADY_LOGGED_IN)} (#{@us[0]})" }).to_json)
           # END LOGIN BLOCK ----------------------------------------------------
           else
             LOG.debug("#{@id}: #{tolog}")
@@ -61,27 +61,27 @@ module Jupiter
         end
       rescue => e
         # Raise code 500 (Internal Server Error)
-        LOG.error("#{@id}: Errore interno del server")
+        LOG.error("#{@id}: #{lang(LANG::CODE500)}")
         LOG.debug("#{@id}: #{e}")
         LOG.debug("#{@id}: #{e.backtrace}")
 
-        error = @headers.merge(Code: '500 Internal Server Error', Cont: { Resp: 'Errore interno del server' }).to_json
         @socket.puts(error)
+        error = @hd.merge(Code: '500 Internal Server Error', Cont: { Resp: lang(LANG::CODE500) }).to_json
         LOG.debug("#{@id}: #{error}")
       end
     end
 
     def check_request(input1)
       if input1.nil? # Send flow to log:"socket closed" if buffer is nil
-        LOG.warn("#{@id}: Bad request: la request e' vuota")
-        @socket.puts(@headers.merge(Code: '400 Bad Request', Cont: { Resp: "La request e' vuota" }).to_json)
+        LOG.warn("#{@id}: Bad request: #{lang(LANG::REQUEST_EMPTY)}")
+        @sc.puts(@hd.merge(Code: '400 Bad Request', Cont: { Resp: lang(LANG::REQUEST_EMPTY).capitalize }).to_json)
         false
       end
 
       # Check if request is using HTTP protocol and respond if so
       if %w[GET POST HEAD PUT].include?(input1.split(' ')[0])
-        LOG.warn("#{@id}: Bad request: il protocollo HTTP non e' supportato")
-        @socket.puts(@headers.merge(Code: '400 Bad Request', Cont: {Resp: 'Impossibile servire attraverso HTTP'}).to_json)
+        LOG.warn("#{@id}: Bad request: #{lang(LANG::NO_HTTP)}")
+        @sc.puts(@hd.merge(Code: '400 Bad Request', Cont: { Resp: lang(LANG::NO_HTTP).capitalize }).to_json)
         false
       end
 
@@ -97,18 +97,18 @@ module Jupiter
     end
 
     def not_found(agent)
-      response = @headers.merge(Code: '404 Not Found', Cont: { Resp: "L'agente o il comando richiesto non esiste" }).to_json
-      LOG.warn("#{@id}: L'agente o il comando richiesto non esiste")
+      response = @hd.merge(Code: '404 Not Found', Cont: { Resp: lang(LANG::NO_AGENT_OR_CMD) }).to_json
+      LOG.warn("#{@id}: #{lang(LANG::NO_AGENT_OR_CMD)}")
       LOG.debug("#{@id}: #{response}")
       agent.history[-1].push(response) # Save in history the response
       @socket.puts(response)
     end
 
     def launch(agent, request)
-      LOG.debug("#{@id}: Lancio di \"#{request[:Agent]}\" in corso")
       out = agent.public_send(request[:Agent].downcase, request, @userinfo)
+      LOG.debug("#{@id}: #{lang(LANG::LAUNCH_AGENT, request[:Agent])}")
 
-      LOG.debug("#{@id}: Responding to request...")
+      LOG.debug("#{@id}: #{lang(LANG::RESPONDING_REQUEST)}")
       # If out[1] is true, merge output into headers
       response = out[1] ? @headers.merge(out[0]).to_json : out[0].to_json
 
@@ -121,8 +121,8 @@ module Jupiter
     end
 
     def unauthorized(agent, req_power)
-      response = @headers.merge(Code: '401 Unauthorized', Cont: { Resp: "E' necessario un livello PW#{req_power} (PW#{@userinfo[1]})" }).to_json
-      LOG.warn("#{@id}: Errore di autorizzazione: E' necessario un livello PW#{req_power} (PW#{@userinfo[1]})")
+      response = @hd.merge(Code: '401 Unauthorized', Cont: { Resp: lang(LANG::PW_LVL_NEEDED, req_power, @us[1]) }).to_json
+      LOG.warn("#{@id}: #{LANG::AUTHORIZATION_ERROR}: #{lang(LANG::PW_LVL_NEEDED, req_power, @us[1])}")
       LOG.debug("#{@id}: #{response}")
       agent.history[-1].push(response) # Save response in history
       @socket.puts(response)
