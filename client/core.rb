@@ -53,49 +53,6 @@ module JClient
     puts text
   end
 
-  def self.table(input, sep = '|', header = true)
-    puts
-    longest = []
-    input[0].each_index do |i|
-      longest[i] = 0
-      input.each_index do |j|
-        input[j][i].to_s.length > longest[i] ? longest[i] = input[j][i].to_s.length + 1 : nil
-      end
-    end
-
-    if header
-      input.each_index do |j|
-        if longest[j]
-          print input[0][j].to_s + ' ' * (longest[j] - input[0][j].to_s.length) + sep + ' '
-        else
-          print input[0][j].to_s
-        end
-      end
-      puts
-      input.each_index do |j|
-        if longest[j]
-          print '-' * (j.zero? ? longest[j] : longest[j] + 1) + sep
-        else
-          print '-' * longest[j]
-        end
-      end
-      puts
-    end
-
-    (header ? input[1..-1] : input).each_index do |i|
-      input.each_index do |j|
-        if longest[j]
-          print input[i][j].to_s + ' ' * (longest[j] - input[i][j].to_s.length) + sep + ' '
-        else
-          print input[i][j].to_s
-        end
-      end
-      puts
-    end
-    puts
-    puts
-  end
-
   def self.chghost(newhost)
     if newhost == '' || newhost.nil?
       puts "#{COLOR::RED}Hostname non valido#{COLOR::CLEAR}"

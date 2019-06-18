@@ -1,5 +1,6 @@
 require 'json'
 require 'socket'
+require 'terminal-table'
 
 system('cls')
 
