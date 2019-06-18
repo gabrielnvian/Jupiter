@@ -86,7 +86,6 @@ module FileBase
     end
   end
 
-
   def self.uploadfile(path, ticket)
     JClient.output(COLOR::YELLOW+'Caricamento file...'+COLOR::CLEAR)
     begin
@@ -98,7 +97,7 @@ module FileBase
       ftp.close
       return true
     rescue Errno::ECONNREFUSED
-      $server.puts HEADERS.merge({ Agent: 'filebase', Cont: { Req: 'CANCEL', Ticket: ticket } }).to_json
+      $server.puts HEADERS.merge(Agent: 'filebase', Cont: { Req: 'CANCEL', Ticket: ticket }).to_json
       JClient.jsontosym(JSON.parse($server.gets))
       JClient.output(COLOR::RED + 'Impossibile contattare il server...' + COLOR::CLEAR)
       return false
