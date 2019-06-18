@@ -1,51 +1,52 @@
-require "net/ftp"
+require 'net/ftp'
 
 module FileBase
-  def FileBase::addfile(path)
+  def self.addfile(path)
     if $server
       if path.nil?
-        path = AP.input("path").gsub(File::ALT_SEPARATOR, File::SEPARATOR).gsub("\"", "")
+        path = JClient.input('path').gsub(File::ALT_SEPARATOR, File::SEPARATOR).gsub('"', '')
       end
 
-      fname = File.basename(path, ".*")
+      fname = File.basename(path, '.*')
       fext = File.extname(path)[1..-1]
       fdate = Time.new.to_i
 
-      fname == "" ? fname = nil : nil
-      fext == "" ? fext = nil : nil
-      fdate == "" ? fdate = nil : nil
+      fname = nil if fname == ''
+      fext = nil if fext == ''
+      fdate = nil if fdate == ''
 
-      keywords = AP.input("keywords").split(" ")
-      owner = AP.input("owner")
-      minPW = AP.input("minPW")
+      keywords = JClient.input('keywords').split(' ')
+      owner = JClient.input('owner')
+      min_pw = JClient.input('min_pw')
 
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"UPLOAD", :Name=>fname, :Ext=>fext, :Date=>fdate,
-        :Keywords=>keywords, :Owner=>owner == "" ? nil : owner, :minPW=>minPW == "" ? nil : minPW}}).to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
+      $server.puts HEADERS.merge(Agent: 'filebase', Cont: { Req: 'UPLOAD', Name: fname, Ext: fext, Date: fdate,
+                                                                    Keywords: keywords, Owner: owner == '' ? nil : owner,
+                                                                    min_pw: min_pw == '' ? nil : min_pw }).to_json
+      response = JClient.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
-        ticket = response[:Content][:Ticket]
+        JClient.output(COLOR::GREEN + response[:Cont][:Resp] + COLOR::CLEAR)
+        ticket = response[:Cont][:Ticket]
         if FileBase.uploadfile(path, ticket)
-          $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"SUBMIT", :Ticket=>ticket}}).to_json
-          response = AP.jsontosym(JSON.parse($server.gets))
-          AP.output(COLOR::GREEN+response[:Content][:Response]+COLOR::CLEAR)
+          $server.puts HEADERS.merge(Agent: 'filebase', Cont: { Req: 'SUBMIT', Ticket: ticket }).to_json
+          response = JClient.jsontosym(JSON.parse($server.gets))
+          JClient.output(COLOR::GREEN + response[:Cont][:Resp] + COLOR::CLEAR)
         end
       elsif response[:Code] == CODE_ERROR
-        AP.reset()
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.reset
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       else
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       end
     else
-      AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
-      return false
+      JClient.output(COLOR::RED + 'Non sei connesso a nessun server' + COLOR::CLEAR)
+      false
     end
   end
 
-  def FileBase::list()
+  def self.list
     if $server
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"LIST"}}).to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
+      $server.puts HEADERS.merge(Agent: 'filebase', Cont: { Req: 'LIST' }).to_json
+      response = JClient.jsontosym(JSON.parse($server.gets))
 
       if response[:Code] == CODE_OK
         for i in 0...response[:Content][:Response].length
@@ -69,27 +70,26 @@ module FileBase
           AP.output(COLOR::YELLOW+"Nessun file da elencare"+COLOR::CLEAR)
         end
       elsif response[:Code] == CODE_ERROR
-        AP.reset()
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.reset
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       else
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       end
     else
-      AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
-      return false
+      JClient.output(COLOR::RED + 'Non sei connesso a nessun server' + COLOR::CLEAR)
+      false
     end
   end
 
-  def FileBase::query(type)
-    if type.nil?
-      type = AP.input("type")
-    end
-    query = AP.input("query")
-    query.to_s[0] == "-" ? query = eval(query.to_s[1..-1]) : nil
+  def self.query(type)
+    type = JClient.input('type') if type.nil?
+
+    query = JClient.input('query')
+    query.to_s[0] == '-' ? query = eval(query.to_s[1..-1]) : nil
 
     if $server
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"QUERY", :Type=>type, :Query=>query}}).to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
+      $server.puts HEADERS.merge(Agent: 'filebase', Cont: { Req: 'QUERY', Type: type, Query: query }).to_json
+      response = JClient.jsontosym(JSON.parse($server.gets))
 
       if response[:Code] == CODE_OK
         for i in 0...response[:Content][:Response].length
@@ -113,37 +113,37 @@ module FileBase
           AP.output(COLOR::YELLOW+"Nessun file corrisponde alla query"+COLOR::CLEAR)
         end
       elsif response[:Code] == CODE_ERROR
-        AP.reset()
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.reset
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       else
-        AP.output(COLOR::RED+response[:Content][:Response]+COLOR::CLEAR)
+        JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       end
     else
-      AP.output(COLOR::RED+"Non sei connesso a nessun server"+COLOR::CLEAR)
+      JClient.output(COLOR::RED + 'Non sei connesso a nessun server' + COLOR::CLEAR)
       return false
     end
   end
 
 
-  def FileBase::uploadfile(path, ticket)
-    AP.output(COLOR::YELLOW+"Caricamento file..."+COLOR::CLEAR)
+  def self.uploadfile(path, ticket)
+    JClient.output(COLOR::YELLOW+'Caricamento file...'+COLOR::CLEAR)
     begin
       ftp = Net::FTP.new
-      ftp.connect($host, "12345")
-      ftp.login("BAYUP", "bayup")
+      ftp.connect($host, '12345')
+      ftp.login('BAYUP', 'bayup')
       ftp.passive = true
       ftp.putbinaryfile(path, "#{ticket}#{File.extname(path)}")
       ftp.close
       return true
     rescue Errno::ECONNREFUSED
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
-      AP.output(COLOR::RED+"Impossibile contattare il server..."+COLOR::CLEAR)
+      $server.puts HEADERS.merge({ Agent: 'filebase', Cont: { Req: 'CANCEL', Ticket: ticket } }).to_json
+      JClient.jsontosym(JSON.parse($server.gets))
+      JClient.output(COLOR::RED + 'Impossibile contattare il server...' + COLOR::CLEAR)
       return false
     rescue
-      AP.output(COLOR::RED+"C'e' stato un errore durante il trasferimento del file..."+COLOR::CLEAR)
-      $server.puts $headers.merge({:User_Agent=>"filebase", :Content=>{:Request=>"CANCEL", :Ticket=>ticket}}).to_json
-      response = AP.jsontosym(JSON.parse($server.gets))
+      JClient.output(COLOR::RED + "C'e' stato un errore durante il trasferimento del file..." + COLOR::CLEAR)
+      $server.puts HEADERS.merge({ Agent: 'filebase', Cont: { Req: 'CANCEL', Ticket: ticket } }).to_json
+      JClient.jsontosym(JSON.parse($server.gets))
       return false
     end
   end

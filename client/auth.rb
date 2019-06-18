@@ -38,18 +38,18 @@ module AuthClient
       JClient.reset
       if response[:Code] == CODE_OK
         JClient.output(COLOR::GREEN + response[:Cont][:Resp] + COLOR::CLEAR)
-        return true
+        true
       elsif response[:Code] == CODE_ERROR
         JClient.reset
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
-        return false
+        false
       else
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
-        return false
+        false
       end
     else
       JClient.output(COLOR::RED + 'Non sei connesso a nessun server' + COLOR::CLEAR)
-      return false
+      false
     end
   end
 
@@ -130,19 +130,28 @@ module AuthClient
   def self.list
     if $server.nil?
       JClient.output(COLOR::RED + 'Devi essere connesso per lanciare questo comando' + COLOR::CLEAR)
-      return false
+      false
     else
       $server.puts HEADERS.merge(Agent: 'auth', Cont: { Req: 'LIST' }).to_json
       response = JClient.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
-        JClient.table(response[:Cont][:Resp].unshift(['Username', 'Livello PW']))
+        t = Terminal::Table.new
+        t.add_row ['Username', 'Livello PW']
+        t.add_separator
+        response[:Cont][:Resp].each do |row|
+          t.add_row row
+        end
+        puts
+        puts t
+        puts
+        puts
       elsif response[:Code] == CODE_ERROR
         JClient.reset
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
       else
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
-      end 
-      return true
+      end
+      true
     end
   end
 end
