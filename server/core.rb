@@ -1,8 +1,9 @@
 module Jupiter
   def self.getsafeid(array, len = 4)
-    id = SecureRandom.hex(len / 2)
-    id = SecureRandom.hex(len / 2) while array.include?(id)
-    id
+    loop do
+      id = SecureRandom.hex(len / 2)
+      return id unless array.include?(id)
+    end
   end
 
   def self.serialize(str, len, char = '0') # DEPRECATED
@@ -96,11 +97,11 @@ module Jupiter
     return false
   end
 
-  def self.jsontosym(h)
+  def self.jsontosym(oldh)
     newhash = {}
-    h.keys.each do |key|
+    oldh.keys.each do |key|
       # If value is an hash call this method on it
-      newhash[key.to_sym] = h[key].is_a?(Hash) ? Jupiter.jsontosym(h[key]) : h[key]
+      newhash[key.to_sym] = oldh[key].is_a?(Hash) ? Jupiter.jsontosym(oldh[key]) : oldh[key]
     end
     newhash
   end
