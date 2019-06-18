@@ -49,26 +49,7 @@ module FileBase
       response = JClient.jsontosym(JSON.parse($server.gets))
 
       if response[:Code] == CODE_OK
-        for i in 0...response[:Content][:Response].length
-          response[:Content][:Response][i] = AP.jsontosym(response[:Content][:Response][i])
-        end
-
-        if !response[:Content][:Response].empty?
-          files = []
-          for item in response[:Content][:Response]
-            files.push([
-              item[:uid],
-              item[:name][0..32] + "." + item[:ext], 
-              Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
-              item[:keywords].join(", ")[0..35], 
-              item[:owner]
-            ])
-          end
-
-          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
-        else
-          AP.output(COLOR::YELLOW+"Nessun file da elencare"+COLOR::CLEAR)
-        end
+        FileBase.show(response, 'Nessun file da elencare')
       elsif response[:Code] == CODE_ERROR
         JClient.reset
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
@@ -92,26 +73,7 @@ module FileBase
       response = JClient.jsontosym(JSON.parse($server.gets))
 
       if response[:Code] == CODE_OK
-        for i in 0...response[:Content][:Response].length
-          response[:Content][:Response][i] = AP.jsontosym(response[:Content][:Response][i])
-        end
-
-        if !response[:Content][:Response].empty?
-          files = []
-          for item in response[:Content][:Response]
-            files.push([
-              item[:uid],
-              item[:name][0..40] + "." + item[:ext], 
-              Time.at(item[:date]).strftime("%d/%m/%y %H:%M"), 
-              item[:keywords].join(", ")[0..35], 
-              item[:owner]
-            ])
-          end
-
-          AP.table(files.unshift(["UID", "Nome", "Data", "Parole Chiave", "Proprietario"]))
-        else
-          AP.output(COLOR::YELLOW+"Nessun file corrisponde alla query"+COLOR::CLEAR)
-        end
+        FileBase.show(response, 'Nessun file corrisponde alla query')
       elsif response[:Code] == CODE_ERROR
         JClient.reset
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
@@ -146,5 +108,26 @@ module FileBase
       JClient.jsontosym(JSON.parse($server.gets))
       return false
     end
+  end
+
+  def self.show(resp, msg)
+    resp[:Cont][:Resp].each_index do |i|
+      resp[:Cont][:Resp][i] = JClient.jsontosym(resp[:Cont][:Resp][i])
+    end
+
+    JClient.output(COLOR::YELLOW + msg + COLOR::CLEAR) if resp[:Cont][:Resp].empty?
+
+    files = []
+    resp[:Cont][:Resp].each do |item|
+      files.push([
+                     item[:uid],
+                     item[:name][0..40] + '.' + item[:ext],
+                     Time.at(item[:date]).strftime('%d/%m/%y %H:%M'),
+                     item[:keywords].join(', ')[0..35],
+                     item[:owner]
+                 ])
+    end
+
+    JClient.table(files.unshift(%w[UID Nome Data Parole\ Chiave Proprietario]))
   end
 end
