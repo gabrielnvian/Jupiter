@@ -5,7 +5,7 @@ module AuthClient
 
       pwd = JClient.input('password', true)
 
-      AuthClient.logout unless $creds.nil?
+      AuthClient.logout unless $creds[0].nil?
 
       $server.nil? ? $server = JClient.connect : nil
 
@@ -15,14 +15,15 @@ module AuthClient
       response = JClient.jsontosym(JSON.parse($server.gets))
       if response[:Code] == CODE_OK
         JClient.output(COLOR::GREEN + response[:Cont][:Resp] + COLOR::CLEAR)
-        return [user, response[:Cont][:Power]]
+        $creds = [user, response[:Cont][:Power]]
+        return true
       elsif response[:Code] == CODE_ERROR
         JClient.reset
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
-        return nil
+        return false
       else
         JClient.output(COLOR::RED + response[:Cont][:Resp] + COLOR::CLEAR)
-        return nil
+        return false
       end
     else
       JClient.output(COLOR::RED + "Hai gia' eseguito il login con l'account \"#{user}\"" + COLOR::CLEAR)

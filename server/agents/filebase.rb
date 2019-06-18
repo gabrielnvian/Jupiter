@@ -4,7 +4,7 @@ class Fulfillment
     when "UPLOAD"
       ticket = AP.getsafeid($filebase_tickets.keys)
       $filebase_tickets[ticket] = {
-        :uid=>AP.getsafeid(FileBase.list($config[:DBpath]), 6),
+        :uid=>AP.getsafeid(FileBase.list(CONFIG[:DBpath]), 6),
         :name=>request[:Content][:Name],
         :ext=>request[:Content][:Ext],
         :date=>request[:Content][:Date],
@@ -17,12 +17,12 @@ class Fulfillment
       ticket = request[:Content][:Ticket]
       if $filebase_tickets[ticket] != nil
         data = $filebase_tickets[ticket]
-        FileUtils.cp("#{$config[:BayUPPath]}/#{ticket}.#{data[:ext]}", "#{$config[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
-        FileUtils.rm("#{$config[:BayUPPath]}/#{ticket}.#{data[:ext]}")
+        FileUtils.cp("#{CONFIG[:BayUPPath]}/#{ticket}.#{data[:ext]}", "#{CONFIG[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
+        FileUtils.rm("#{CONFIG[:BayUPPath]}/#{ticket}.#{data[:ext]}")
           
-        data[:size] = File.size("#{$config[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
+        data[:size] = File.size("#{CONFIG[:DBpath]}/#{data[:uid]}.#{data[:ext]}")
 
-        FileBase.add($config[:DBpath], data)
+        FileBase.add(CONFIG[:DBpath], data)
 
         newhash = {}
         for key in $filebase_tickets.keys
@@ -49,7 +49,7 @@ class Fulfillment
     when "LIST"
       user = userinfo[0]
       power = userinfo[1]
-      reg = FileBase.load($config[:DBpath])
+      reg = FileBase.load(CONFIG[:DBpath])
       regtosend = []
       
       for item in reg
@@ -100,13 +100,13 @@ $filebase_tickets = {}
 
 class OnServerStartup
   def self.filebase_create_subfolders()
-    FileUtils.mkdir_p("#{$config[:DBpath]}/.db")
-    FileUtils.mkdir_p("#{$config[:DBpath]}/.backup")
+    FileUtils.mkdir_p("#{CONFIG[:DBpath]}/.db")
+    FileUtils.mkdir_p("#{CONFIG[:DBpath]}/.backup")
   end
 
   def self.filebase_create_registry()
-    if !File.exist?("#{$config[:DBpath]}/.db/registry")
-      File.open("#{$config[:DBpath]}/.db/registry", "w") do |f1|
+    if !File.exist?("#{CONFIG[:DBpath]}/.db/registry")
+      File.open("#{CONFIG[:DBpath]}/.db/registry", "w") do |f1|
         f1.print ""
       end
     end
@@ -172,7 +172,7 @@ module FileBase
   end
 
   def FileBase::QueryName(query, user, power)
-    db = FileBase.load($config[:DBpath])
+    db = FileBase.load(CONFIG[:DBpath])
     result = []
     for item in db
       if power >= item[:minPW]
@@ -199,7 +199,7 @@ module FileBase
   end
 
   def FileBase::QueryKeywords(query, user, power)
-    db = FileBase.load($config[:DBpath])
+    db = FileBase.load(CONFIG[:DBpath])
     result = []
     for item in db
       if power >= item[:minPW]
@@ -226,7 +226,7 @@ module FileBase
   end
 
   def FileBase::QueryOwner(query, user, power)
-    db = FileBase.load($config[:DBpath])
+    db = FileBase.load(CONFIG[:DBpath])
     result = []
     query.nil? ? query = user : nil
     for item in db
@@ -254,7 +254,7 @@ module FileBase
   end
 
   def FileBase::QueryBefore(query, user, power)
-    db = FileBase.load($config[:DBpath])
+    db = FileBase.load(CONFIG[:DBpath])
     result = []
     query.nil? ? query = Time.new.to_i : nil
     for item in db
@@ -282,7 +282,7 @@ module FileBase
   end
 
   def FileBase::QueryAfter(query, user, power)
-    db = FileBase.load($config[:DBpath])
+    db = FileBase.load(CONFIG[:DBpath])
     result = []
     query.nil? ? query = Time.new.to_i : nil
     for item in db

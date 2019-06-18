@@ -41,7 +41,7 @@ begin
         JClient.ping
 
       when 'login'
-        $creds = AuthClient.login(cmd.split(' ')[1]) || $creds
+        AuthClient.login(cmd.split(' ')[1])
 
       when 'logout', 'disconnect'
         AuthClient.logout

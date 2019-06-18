@@ -37,7 +37,7 @@ class Fulfillment
         return { Code: '401 Unauthorized', Cont: { Resp: "L'utente ha un livello PW superiore del richiedente o la password non corrisponde" } }, true
       end
     when 'LIST'
-      [{ Cont: { Resp: Auth.list(userinfo[1]) } }, true]
+      [{ Cont: { Resp: Auth.list } }, true]
     end
   end
 end
