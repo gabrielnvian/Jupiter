@@ -1,7 +1,10 @@
 require 'net/ftp'
 
 module FileBase
-  def self.addfile(path)
+  def self.add(path)
+  end
+
+  def self.del(uid)
   end
 
   def self.list
