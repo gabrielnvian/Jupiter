@@ -2,7 +2,7 @@
 
 def lang(text, *args)
   args.each_index do |i|
-    text.sub!("!#{i+1}!", args[i].to_s)
+    text.sub!("!#{i + 1}!", args[i].to_s)
   end
   text
 end
