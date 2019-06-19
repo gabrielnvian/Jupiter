@@ -25,6 +25,7 @@ module Jupiter
 
           Jupiter.getagents_folders(agent)
           Jupiter.getagents_libs(agent)
+          Jupiter.getagents_lang(agent)
 
           agent[:dependencies].each do |dependency|
             begin
@@ -68,6 +69,17 @@ module Jupiter
     agent[:libs].each do |lib|
       require_relative "lib/#{lib}"
     end
+  end
+
+  def self.getagents_lang(agent)
+    agent[:translations].keys.each do |lang|
+      next if Object.const_defined?(lang)
+
+      LOG.fatal(lang(LANG::AGENT_LANG_NOT_DEFINED, agent[:name], lang))
+      LOG.debug(lang())
+      exit!
+    end
+    true
   end
 
   def self.getagents_install(agent)

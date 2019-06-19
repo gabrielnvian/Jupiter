@@ -9,9 +9,14 @@
     "QUERY": 1
   },
   "startupTasks": [
-  "filebase_create_subfolders",
-  "filebase_create_registry"
+    "filebase_create_subfolders",
+    "filebase_create_registry"
   ],
   "dependencies": ["zip"],
-  "libs": []
+  "libs": [],
+  "translations": {
+    "FILEBASE_FILE_ADDED": "File archiviato con successo",
+    "FILEBASE_NO_FILE_TO_SHOW": "Nessun file da elencare",
+    "FILEBASE_FILE_LIST": "Elenco file per !1!"
+  }
 }
