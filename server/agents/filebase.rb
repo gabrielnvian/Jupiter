@@ -2,23 +2,24 @@ class Fulfillment
   def filebase(request, userinfo)
     case request[:Cont][:Req]
     when 'ADD'
-      item = request[:Cont][:Data] # name, ext, owner, power, kwords
+      item = Jupiter.jsontosym(request[:Cont][:Data]) # name, ext, owner, power, kwords
       item[:uid] = Jupiter.getsafeid(FileBase.get_uids, 10)
-      return { Code: '400 Bad Request', Cont: { Resp: 'Dati non validi' } }, true unless FileBase.validate(item)
+      return { Code: '400 Bad Request', Cont: { Resp: 'Dati non validi' } }, true unless FileBase.validate(item, false)
 
-      FileUtils.mv("#{CONFIG[:FTPuserPath]}/#{item[:name]}.#{item[:ext]}", "agents/files/filebase/db/#{item[:uid]}.filebase")
+      tomove = "#{CONFIG[:FTPuserPath]}/#{item[:name]}.#{item[:ext]}"
+      return { Code: '400 Bad Request', Cont: { Resp: "Il file non e' ancora stato caricato" } }, true unless File.exist?(tomove)
+
+      FileUtils.mv(tomove, "agents/files/filebase/db/#{item[:uid]}.filebase")
       FileBase.add(item)
       [{ Cont: { Resp: lang(LANG::FILEBASE_FILE_ADDED) } }, true]
     when 'DEL'
-      # delete file
-      # respond
+      uid = request[:Cont][:uid]
     when 'LIST'
       files = FileBase.list(userinfo[0])
-      if files.empty?
-        return { Cont: { Resp: lang(LANG::FILEBASE_NO_FILE_TO_SHOW), Data: [] } }, true
-      else
-        return { Cont: { Resp: lang(LANG::FILEBASE_FILE_LIST, userinfo[0]), Data: files } }, true
-      end
+
+      return { Cont: { Resp: lang(LANG::FILEBASE_NO_FILE_TO_SHOW), Data: [] } }, true if files.empty?
+
+      [{ Cont: { Resp: lang(LANG::FILEBASE_FILE_LIST, userinfo[0]), Data: files } }, true]
     when 'QUERY'
       # query through registered files
     end
@@ -44,24 +45,21 @@ end
 module FileBase
   # Parse registry
   def self.load
-    Jupiter.jsontosym JSON.parse(File.readlines.join('').chomp)
+    file = File.readlines('agents/files/filebase/registry.json').join('').chomp
+    Jupiter.jsontosym JSON.parse(file)
   end
 
   # Validates the item
-  def self.validate(item)
+  def self.validate(item, uid = true)
     item = Jupiter.jsontosym(item)
-    return false if item.keys.include? :uid
-    return false if item[:uid].length != 10
-    return false if item.keys.include? :name
+    return false if item[:uid].length != 10 && uid == true
     return false if item[:name].nil?
-    return false if item.keys.include? :ext
     return false if item[:ext].nil?
-    return false if item.keys.include? :owner
     return false if item[:owner].nil?
-    return false if item.keys.include? :kwords
     return false unless item[:kwords].is_a?(Array)
 
     item[:power] = 10 if item[:power] > 10
+    true
   end
 
   # Add file to registry
