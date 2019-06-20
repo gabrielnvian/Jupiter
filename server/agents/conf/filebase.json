@@ -1,10 +1,10 @@
 {
   "name": "filebase",
-  "active": false,
+  "active": true,
   "folders": ["database"],
   "commands": {
-    "SUBMIT": 1,
-    "CANCEL": 1,
+    "ADD": 1,
+    "DEL": 1,
     "LIST": 1,
     "QUERY": 1
   },

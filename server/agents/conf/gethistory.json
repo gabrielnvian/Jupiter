@@ -7,5 +7,6 @@
   },
   "startupTasks": [],
   "dependencies": [],
-  "libs": []
+  "libs": [],
+  "translations": {}
 }
