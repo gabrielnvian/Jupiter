@@ -70,7 +70,7 @@ open_sessions = 0 # Counter for open sessions
 # Waiting for connections
 LOG.info(lang(LANG::WAITING_CONNECTIONS))
 system("title Jupiter Server #{CONFIG['version']} (#{open_sessions})")
-while true
+loop do
   begin
     Thread.fork(server.accept) do |socket|
       begin

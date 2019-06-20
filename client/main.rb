@@ -1,6 +1,7 @@
 require 'json'
 require 'socket'
 require 'terminal-table'
+require 'net/ftp'
 
 system('cls')
 
@@ -61,7 +62,7 @@ begin
       when 'filebase', 'file'
         case cmd.split(' ')[1]
         when 'addfile', 'add'
-          FileBase.addfile(cmd.split(' ')[2])
+          FileBase.add(cmd.split(' ')[2], cmd.split(' ')[3], cmd.split(' ')[4], cmd.split(' ')[5..-1])
         when 'download', 'down'
           FileBase.download(cmd.split(' ')[2])
         when 'list'
