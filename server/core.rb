@@ -73,10 +73,10 @@ module Jupiter
 
   def self.getagents_lang(agent)
     agent[:translations].keys.each do |lang|
-      next if Object.const_defined?(lang)
+      next if LANG.const_defined?(lang)
 
       LOG.fatal(lang(LANG::AGENT_LANG_NOT_DEFINED, agent[:name], lang))
-      LOG.debug(lang())
+      LOG.debug(lang.to_s)
       exit!
     end
     true
@@ -106,15 +106,32 @@ module Jupiter
 
       return agent[:commands].keys.include?(cmd.upcase.to_sym)
     end
-    return false
+    false
   end
 
-  def self.jsontosym(oldh)
-    newhash = {}
-    oldh.keys.each do |key|
-      # If value is an hash call this method on it
-      newhash[key.to_sym] = oldh[key].is_a?(Hash) ? Jupiter.jsontosym(oldh[key]) : oldh[key]
+  def self.jsontosym(old)
+    if [String, Integer, NilClass, Float, TrueClass, FalseClass].include? old.class
+      old
+    elsif old.is_a?(Array)
+      return [] if old == [nil]
+
+      new = []
+      old.each_index do |i|
+        new[i] = Jupiter.jsontosym(old[i])
+      end
+      new
+    elsif old.is_a?(Hash)
+      new = {}
+      old.keys.each do |key|
+        new[key.to_sym] = Jupiter.jsontosym(old[key])
+      end
+      new
+    else
+      false
     end
-    newhash
   end
+end
+
+
+class OnServerStartup
 end

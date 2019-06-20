@@ -23,12 +23,26 @@ module JClient
     end
   end
 
-  def self.jsontosym(h)
-    newhash = {}
-    h.keys.each do |key|
-      newhash[key.to_sym] = h[key].is_a?(Hash) ? self.jsontosym(h[key]) : h[key]
+  def self.jsontosym(old)
+    if [String, Integer, NilClass, Float, TrueClass, FalseClass].include? old.class
+      old
+    elsif old.is_a?(Array)
+      return [] if old == [nil]
+
+      new = []
+      old.each_index do |i|
+        new[i] = JClient.jsontosym(old[i])
+      end
+      new
+    elsif old.is_a?(Hash)
+      new = {}
+      old.keys.each do |key|
+        new[key.to_sym] = JClient.jsontosym(old[key])
+      end
+      new
+    else
+      false
     end
-    return newhash
   end
 
   def self.input(text = nil, pwd = false)
